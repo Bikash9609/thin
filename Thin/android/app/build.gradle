@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.gms.google-services' // firebase
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
@@ -120,6 +121,6 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 
 // React native vector icons 
 project.ext.vectoricons = [
-    iconFontNames: [ 'IconIcons.ttf'] // Specify font files
+    iconFontNames: [ 'Ionicons.ttf'] // Specify font files
 ]
 apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
