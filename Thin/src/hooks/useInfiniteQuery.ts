@@ -4,7 +4,12 @@ type FetchFunction<T> = (page: number) => Promise<T[]>;
 
 type Response<T> = [
   T[],
-  { loading: boolean; hasMore: boolean; fetchMore: () => void },
+  {
+    loading: boolean;
+    hasMore: boolean;
+    fetchMore: () => void;
+    refreshData: () => void;
+  },
 ];
 function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const [data, setData] = useState<T[]>([]);
@@ -53,8 +58,16 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
     setPage(prevPage => prevPage + 1);
   };
 
+  const refreshData = () => {
+    setPage(1);
+    setData([]);
+    setHasMore(true);
+    setLoading(false);
+    setError(null);
+  };
+
   const values: Response<T> = useMemo(() => {
-    return [data, { loading, hasMore, fetchMore }];
+    return [data, { loading, hasMore, fetchMore, refreshData }];
   }, [data, loading, hasMore]);
 
   return values;

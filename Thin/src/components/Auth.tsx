@@ -19,6 +19,8 @@ import auth from '@react-native-firebase/auth'; // Import Firebase authenticatio
 import AsyncStorageUtils from '../helpers/asyncStorage';
 import { request } from '../axios';
 import config from '../config/config';
+import FullScreenLoader from './FullScreenLoader';
+import AuthLoading from './AuthLoading';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -87,10 +89,13 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     return children;
   }
 
+  if (isLoading) {
+    return <AuthLoading />;
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar animated backgroundColor="#030e19" barStyle="dark-content" />
-      {isLoading && <ActivityIndicator />}
       <ImageBackground
         source={require('../assets/1.jpeg')}
         style={styles.imageBackground}>

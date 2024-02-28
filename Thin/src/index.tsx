@@ -11,6 +11,8 @@ import Carousel, { CarouselProps } from 'react-native-snap-carousel';
 import NewsItem from './Screens/Home';
 import useInfiniteQuery from './hooks/useInfiniteQuery';
 import { request } from './axios';
+import FullScreenLoader from './components/FullScreenLoader';
+import AuthLoading from './components/AuthLoading';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height - 23;
 
@@ -59,7 +61,8 @@ const updatePostViewed = async (item: PostResponse) => {
 
 const Navigator = () => {
   const [viewedPosts, setViewedPosts] = useState<string[]>([]);
-  const [data, { fetchMore, loading }] = useInfiniteQuery(fetchPosts);
+  const [data, { fetchMore, loading, refreshData }] =
+    useInfiniteQuery(fetchPosts);
 
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
@@ -95,12 +98,13 @@ const Navigator = () => {
         dislikes={item.dislikes}
         imageAttr={{ url: item.imageAttrUrl, title: item.imageAttr }}
         viewerReaction={(item.viewer_reaction as any) ?? undefined}
+        refreshData={refreshData}
       />
     ),
     [],
   );
 
-  if (loading && !data.length) return <ActivityIndicator />;
+  if (loading && !data.length) return <AuthLoading />;
 
   return (
     <SafeAreaView style={styles.container}>

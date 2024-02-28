@@ -35,6 +35,7 @@ export interface NewsItemProps {
     title: string;
   };
   viewerReaction?: 'like' | 'dislike';
+  refreshData: () => void;
 }
 
 const renderMetaText = (datePublished: string) => {
@@ -70,6 +71,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   uuid,
   imageAttr,
   viewerReaction,
+  refreshData,
 }) => {
   const [isInView, componentRef] = useIsComponentInView();
   const { handleShare, viewRef } = useShare();
@@ -198,13 +200,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
             <View style={styles.reactionIcons}>
               <TouchableOpacity
                 style={styles.iconContainer}
-                onPress={() =>
-                  handleShare({
-                    title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
-                    message:
-                      'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
-                  })
-                }>
+                onPress={refreshData}>
                 <Icon name="refresh-outline" size={20} color="#808080" />
                 <Text style={styles.iconText}>refresh feed</Text>
               </TouchableOpacity>

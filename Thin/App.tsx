@@ -2,6 +2,7 @@ import React from 'react';
 
 import Navigator from './src';
 import AuthScreen from './src/components/Auth';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 // TODO: need to add Loading screen
 // TODO: add internal linking for the app
@@ -11,8 +12,10 @@ import AuthScreen from './src/components/Auth';
 
 export default function App() {
   return (
-    <AuthScreen>
-      <Navigator />
-    </AuthScreen>
+    <ErrorBoundary>
+      <AuthScreen>
+        <Navigator />
+      </AuthScreen>
+    </ErrorBoundary>
   );
 }
