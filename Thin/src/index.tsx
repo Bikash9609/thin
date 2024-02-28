@@ -1,147 +1,129 @@
-import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
-import NewsItem, { NewsItemProps } from './Screens/Home';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+  SafeAreaView,
+  ViewToken,
+} from 'react-native';
+import Carousel, { CarouselProps } from 'react-native-snap-carousel';
+import NewsItem from './Screens/Home';
+import useInfiniteQuery from './hooks/useInfiniteQuery';
+import { request } from './axios';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height - 23;
 
-const newsItems = [
-  {
-    id: 1,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 2,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '2 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 3,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '3 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 4,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '4 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 5,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '2 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 6,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '6 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  {
-    id: 7,
-    author: 'ABP news',
-    datePublished: new Date().toISOString(),
-    website: 'https://frulow.com',
-    link: 'https://www.frulow.com',
-    subtitle:
-      '7 Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    imageUrl:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-    title:
-      'Eiffel Tower made of 706,900 matchsticks sets world record after earlier denial',
-    attributeKeyword: 'Is something else going on here?',
-    infoText: `An Eiffel Tower replica, made with 706,900 matches and 23 kilos of glue, set a Guinness World Record for its height. Earlier, the 7.2-metre (23.6 ft) high structure, made by Richard Plaud, was denied the record over the use of wrong matchsticks. "We were a little bit too harsh on the type of matches," Guinness World Records said. `,
-  },
-  // Add more news items as needed
-];
+export interface PostResponse {
+  uuid: string;
+  title: string;
+  infoText: string;
+  imageUrl: string;
+  imageAttr: string;
+  imageAttrUrl: string;
+  link: string;
+  subtitle: string;
+  attributeKeyword: string;
+  datePublished: string;
+  author_name: string;
+  author_uuid: string;
+  category_name: string;
+  category_uuid: string;
+  likes: number;
+  dislikes: number;
+  viewer_reaction?: string;
+  author_website?: string;
+}
+
+const fetchPosts = async (page: number) => {
+  const res = await request<PostResponse[]>({
+    method: 'get',
+    url: '/posts',
+    params: { page },
+  });
+  return res;
+};
+
+const updatePostViewed = async (item: PostResponse) => {
+  try {
+    if (!item) return;
+    await request({
+      method: 'post',
+      url: `/post/view/${item.uuid}`,
+    });
+    console.log('Post viewed', item.uuid);
+  } catch (error) {
+    console.error(`Error viewing post ${item.uuid}`);
+  }
+};
 
 const Navigator = () => {
-  const renderNewsItem = ({ item }: { item: NewsItemProps }) => (
-    <NewsItem
-      id={item.id}
-      author={item.author}
-      datePublished={item.datePublished}
-      website={item.website}
-      link={item.link}
-      subtitle={item.subtitle}
-      imageUrl={item.imageUrl}
-      title={item.title}
-      attributeKeyword={item.attributeKeyword}
-      infoText={item.infoText}
-    />
+  const [viewedPosts, setViewedPosts] = useState<string[]>([]);
+  const [data, { fetchMore, loading }] = useInfiniteQuery(fetchPosts);
+
+  const handleItemViewed = React.useCallback(
+    (slideIndex: number) => {
+      const item = data[slideIndex];
+      if (item && !viewedPosts.includes(item.uuid)) {
+        updatePostViewed(item);
+        setViewedPosts(prev => [...prev, item.uuid]);
+      }
+    },
+    [data, viewedPosts],
   );
 
+  useEffect(() => {
+    if (data?.[0] && !viewedPosts.includes(data?.[0]?.uuid)) {
+      handleItemViewed(0);
+    }
+  }, [data]);
+
+  const renderNewsItem = useCallback(
+    ({ item }: { item: PostResponse }) => (
+      <NewsItem
+        uuid={item.uuid}
+        author={item.author_name}
+        datePublished={item.datePublished}
+        website={item.author_website as string}
+        link={item.link}
+        subtitle={item.subtitle}
+        imageUrl={item.imageUrl}
+        title={item.title}
+        attributeKeyword={item.attributeKeyword}
+        infoText={item.infoText}
+        likes={item.likes}
+        dislikes={item.dislikes}
+        imageAttr={{ url: item.imageAttrUrl, title: item.imageAttr }}
+        viewerReaction={(item.viewer_reaction as any) ?? undefined}
+      />
+    ),
+    [],
+  );
+
+  if (loading && !data.length) return <ActivityIndicator />;
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Carousel
-        data={newsItems}
+        data={data}
         renderItem={renderNewsItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={item => item.uuid}
         sliderHeight={SCREEN_HEIGHT}
         itemHeight={SCREEN_HEIGHT}
         vertical={true}
         swipeThreshold={70}
+        scrollEnabled
+        onEndReached={fetchMore}
+        onEndReachedThreshold={0.4}
+        onSnapToItem={handleItemViewed}
+        activeSlideOffset={0}
+        ListFooterComponent={
+          <View>
+            <ActivityIndicator />
+          </View>
+        }
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

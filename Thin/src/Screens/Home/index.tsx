@@ -6,14 +6,19 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StyleSheet,
-  Animated,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Linking } from 'react-native';
 import moment from 'moment';
+import useShare from '../../hooks/useShare';
+import ViewShot from 'react-native-view-shot';
+import useCardActions, { ActionType } from '../../hooks/useCardAction';
+import { getPlural } from '../../helpers/wrods';
+import useIsComponentInView from '../../hooks/useIsComponentInView';
 
 export interface NewsItemProps {
-  id: number;
+  uuid: string;
   title: string; // Title of the news item (max 60 characters)
   infoText: string; // Short description of the news item (max 100 words)
   imageUrl: string; // URL of the image for the news item
@@ -23,6 +28,13 @@ export interface NewsItemProps {
   author: string;
   website: string;
   datePublished: string;
+  likes: number;
+  dislikes: number;
+  imageAttr: {
+    url: string;
+    title: string;
+  };
+  viewerReaction?: 'like' | 'dislike';
 }
 
 const renderMetaText = (datePublished: string) => {
@@ -53,118 +65,197 @@ const NewsItem: React.FC<NewsItemProps> = ({
   author,
   website,
   datePublished,
+  likes,
+  dislikes,
+  uuid,
+  imageAttr,
+  viewerReaction,
 }) => {
-  const [upvotes, setUpvotes] = useState(20);
-  const [downvotes, setDownvotes] = useState(10);
-  const [comments, setComments] = useState(5);
+  const [isInView, componentRef] = useIsComponentInView();
+  const { handleShare, viewRef } = useShare();
+  const { handleAction, state, activeUserValue } = useCardActions(
+    {
+      dislike: +dislikes,
+      like: +likes,
+      share: 0,
+      postUuid: uuid,
+    },
+    viewerReaction,
+    isInView,
+  );
 
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
-  const [slideAnimation] = useState(new Animated.Value(0));
 
-  const handleLike = () => setIsLiked(!isLiked);
-  const handleDislike = () => setIsDisliked(!isDisliked);
-  const handleComment = () => {
-    // Implement your comment functionality here (e.g., navigate to a comment screen)
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    handleAction('like');
   };
-  const handleOpenLink = () => {
+  const handleDislike = () => {
+    setIsDisliked(!isDisliked);
+    handleAction('dislike');
+  };
+
+  const handleOpenLink = (link: string | undefined) => () => {
     if (link) {
       Linking.openURL(link);
     }
   };
 
+  const getActiveIconColor = (type: ActionType) => {
+    return type === activeUserValue ? '#fff' : '#808080';
+  };
+  const getActiveIcon = (
+    type: ActionType,
+    inactive: string,
+    active: string,
+  ) => {
+    return type === activeUserValue ? active : inactive;
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.item}>
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: imageUrl }} style={styles.image} />
-          <TouchableOpacity onPress={handleOpenLink} style={styles.attribute}>
-            <View style={styles.attribute}>
-              <Icon
-                style={styles.attributeIcon}
-                name="person-outline"
-                color={'#fff'}
-              />
-              <Text
-                style={[styles.attributeText, styles.authorAttr]}
-                numberOfLines={1}>
-                Image by Arjun
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleOpenLink}>
-            <View style={[styles.attribute, styles.infoAttr]}>
-              <Icon
-                style={styles.attributeIcon}
-                name="information-circle-outline"
-                color={'#fff'}
-              />
-              <Text style={styles.attributeText} numberOfLines={1}>
-                {attributeKeyword}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.title} numberOfLines={3}>
-            {title}
-          </Text>
-          <View style={styles.contentMetaInfo}>
-            <TouchableOpacity
-              onPress={handleOpenLink}
-              style={styles.contentMetaInfo}>
-              <Icon
-                name="person-outline"
-                size={14}
-                color="#808080"
-                style={styles.contentIcon}
-              />
-              <Text style={styles.contentMetaText}>{author}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.contentMetaInfo}
-              onPress={handleOpenLink}>
-              <Icon
-                name="calendar-outline"
-                size={14}
-                color="#808080"
-                style={styles.contentIcon}
-              />
-              <Text style={styles.contentMetaText}>
-                {renderMetaText(datePublished)}
-              </Text>
-            </TouchableOpacity>
+    <View ref={componentRef} key={uuid} style={styles.container}>
+      <StatusBar showHideTransition="slide" />
+      <ViewShot ref={viewRef} style={styles.item}>
+        <View>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+            {imageAttr.title && (
+              <TouchableOpacity
+                onPress={handleOpenLink(imageAttr.url)}
+                style={styles.attribute}>
+                <Icon
+                  style={styles.attributeIcon}
+                  name="person-outline"
+                  color={'#fff'}
+                />
+                <Text
+                  style={[styles.attributeText, styles.authorAttr]}
+                  numberOfLines={1}>
+                  Image by {imageAttr.title}
+                </Text>
+              </TouchableOpacity>
+            )}
+            {attributeKeyword && (
+              <View style={[styles.attribute, styles.infoAttr]}>
+                <Icon
+                  style={styles.attributeIcon}
+                  name="information-circle-outline"
+                  color={'#fff'}
+                />
+                <Text style={styles.attributeText} numberOfLines={1}>
+                  {attributeKeyword}
+                </Text>
+              </View>
+            )}
           </View>
-          <Text style={styles.contentInfoText}>{infoText}</Text>
-        </View>
-      </View>
 
-      <View style={[styles.footer, { backgroundColor: '#333' }]}>
-        <Text style={styles.subtitle} numberOfLines={2}>
-          {subtitle}
-        </Text>
-        <View style={styles.reactionIcons}>
-          <TouchableOpacity style={styles.iconContainer} onPress={handleLike}>
-            <Icon name="arrow-up" size={20} color="#808080" />
-            <Text style={styles.iconText}>{upvotes} upvotes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={handleDislike}>
-            <Icon name="arrow-down" size={20} color="#808080" />
-            <Text style={styles.iconText}>{downvotes} downvotes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={handleComment}>
-            <Icon name="share-social-outline" size={20} color="#808080" />
-            <Text style={styles.iconText}>{comments} shares</Text>
-          </TouchableOpacity>
+          <View style={styles.content}>
+            <Text
+              style={styles.title}
+              numberOfLines={3}
+              onPress={handleOpenLink(link)}>
+              {title}
+            </Text>
+            <View style={styles.contentMetaInfo}>
+              <TouchableOpacity
+                onPress={handleOpenLink(website)}
+                style={styles.contentMetaInfo}>
+                <Icon
+                  name="person-outline"
+                  size={14}
+                  color="#808080"
+                  style={styles.contentIcon}
+                />
+                <Text style={styles.contentMetaText}>{author}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.contentMetaInfo}
+                onPress={handleOpenLink(link)}>
+                <Icon
+                  name="calendar-outline"
+                  size={14}
+                  color="#808080"
+                  style={styles.contentIcon}
+                />
+                <Text style={styles.contentMetaText}>
+                  {renderMetaText(datePublished)}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.contentInfoText} numberOfLines={10}>
+              {infoText}
+            </Text>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+
+        <View style={styles.footerContainer}>
+          <View style={[styles.footer, { backgroundColor: '#333' }]}>
+            <Text style={styles.subtitle} numberOfLines={2}>
+              {subtitle}
+            </Text>
+            <View style={styles.reactionIcons}>
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() =>
+                  handleShare({
+                    title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
+                    message:
+                      'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
+                  })
+                }>
+                <Icon name="refresh-outline" size={20} color="#808080" />
+                <Text style={styles.iconText}>refresh feed</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() =>
+                  handleShare({
+                    title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
+                    message:
+                      'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
+                  })
+                }>
+                <Icon name="share-social-outline" size={20} color="#808080" />
+                <Text style={styles.iconText}>share</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={handleDislike}>
+                <Icon
+                  name={getActiveIcon(
+                    'dislike',
+                    'arrow-down',
+                    'arrow-down-circle',
+                  )}
+                  size={20}
+                  color={getActiveIconColor('dislike')}
+                />
+                <Text style={styles.iconText}>
+                  {state.dislike}{' '}
+                  {getPlural(state.dislike, 'downvote', 'downvotes')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={handleLike}>
+                <Icon
+                  name={getActiveIcon('like', 'arrow-up', 'arrow-up-circle')}
+                  size={20}
+                  color={getActiveIconColor('like')}
+                />
+                <Text style={styles.iconText}>
+                  {state.like} {getPlural(state.like, 'upvote', 'upvotes')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ViewShot>
+    </View>
   );
 };
 
@@ -184,6 +275,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 210,
     resizeMode: 'cover',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
   },
 
   content: {
@@ -256,6 +349,12 @@ const styles = StyleSheet.create({
     right: 10,
     top: undefined,
     left: undefined,
+  },
+  footerContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   footer: {
     flexDirection: 'column',

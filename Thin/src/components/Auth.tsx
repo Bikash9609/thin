@@ -17,6 +17,8 @@ import {
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'; // Import Firebase authentication module
 import AsyncStorageUtils from '../helpers/asyncStorage';
+import { request } from '../axios';
+import config from '../config/config';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -40,17 +42,15 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
 
   const fetchUserLoginToken = async (idToken: string) => {
     try {
-      // Exchange Google ID token for Firebase credential
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      // Sign in with Firebase using the credential
-      const userCredential =
-        await auth().signInWithCredential(googleCredential);
-      // Get the user's token
-      const token = await userCredential.user?.getIdToken();
-      if (!token) throw new Error('No token found');
+      const res = await request<{ token: string }>({
+        method: 'post',
+        url: '/login',
+        data: { token: idToken },
+      });
+      if (!res?.token) throw new Error('No token found');
       // Call onSuccess callback with the token
       setIsSignedIn(true); // Store token in AsyncStorage
-      await AsyncStorageUtils.setItem('token', token);
+      await AsyncStorageUtils.setItem(config.tokenStorageKey, res.token);
     } catch (error) {
       Alert.prompt('Error logging in');
     } finally {
@@ -66,6 +66,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Fetch user token from Firebase
       if (!userInfo.idToken) throw new Error('Error logging in');
       await fetchUserLoginToken(userInfo.idToken);
+
       setIsSignedIn(true);
     } catch (error: any) {
       setIsLoading(false);
@@ -76,7 +77,8 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     async function login() {
-      setIsSignedIn(await GoogleSignin.isSignedIn());
+      googleLogin();
+      // setIsSignedIn(await GoogleSignin.isSignedIn());
     }
     login();
   }, []);
