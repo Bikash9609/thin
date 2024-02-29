@@ -4,9 +4,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
   StatusBar,
+  Pressable,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Linking } from 'react-native';
@@ -16,6 +16,7 @@ import ViewShot from 'react-native-view-shot';
 import useCardActions, { ActionType } from '../../hooks/useCardAction';
 import { getPlural } from '../../helpers/wrods';
 import useIsComponentInView from '../../hooks/useIsComponentInView';
+import ImageView from 'react-native-image-viewing';
 
 export interface NewsItemProps {
   uuid: string;
@@ -88,6 +89,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
 
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
+  const [zoomImage, setZoomImage] = useState(false);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -121,7 +123,15 @@ const NewsItem: React.FC<NewsItemProps> = ({
       <ViewShot ref={viewRef} style={styles.item}>
         <View>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Pressable onPress={() => setZoomImage(true)}>
+              <Image source={{ uri: imageUrl }} style={styles.image} />
+            </Pressable>
+            <ImageView
+              images={[{ uri: imageUrl }]}
+              imageIndex={0}
+              visible={zoomImage}
+              onRequestClose={() => setZoomImage(false)}
+            />
             {imageAttr.title && (
               <TouchableOpacity
                 onPress={handleOpenLink(imageAttr.url)}
