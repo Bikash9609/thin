@@ -4,19 +4,22 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  StyleSheet,
   StatusBar,
   Pressable,
+  ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import ImageView from 'react-native-image-viewing';
+import ViewShot from 'react-native-view-shot';
+import { makeStyles } from '@rneui/themed';
 import { Linking } from 'react-native';
 import moment from 'moment';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+
 import useShare from '../../hooks/useShare';
-import ViewShot from 'react-native-view-shot';
 import useCardActions, { ActionType } from '../../hooks/useCardAction';
 import { getPlural } from '../../helpers/wrods';
 import useIsComponentInView from '../../hooks/useIsComponentInView';
-import ImageView from 'react-native-image-viewing';
 
 export interface NewsItemProps {
   uuid: string;
@@ -74,6 +77,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   viewerReaction,
   refreshData,
 }) => {
+  const styles = useStyles();
   const [isInView, componentRef] = useIsComponentInView();
   const { handleShare, viewRef } = useShare();
   const { handleAction, state, activeUserValue } = useCardActions(
@@ -116,6 +120,8 @@ const NewsItem: React.FC<NewsItemProps> = ({
   ) => {
     return type === activeUserValue ? active : inactive;
   };
+
+  const footerIconSize = scale(23);
 
   return (
     <View ref={componentRef} key={uuid} style={styles.container}>
@@ -203,132 +209,145 @@ const NewsItem: React.FC<NewsItemProps> = ({
         </View>
 
         <View style={styles.footerContainer}>
-          <View style={[styles.footer, { backgroundColor: '#333' }]}>
-            <Text style={styles.subtitle} numberOfLines={2}>
-              {subtitle}
-            </Text>
-            <View style={styles.reactionIcons}>
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={refreshData}>
-                <Icon name="refresh-outline" size={20} color="#808080" />
-                <Text style={styles.iconText}>refresh feed</Text>
-              </TouchableOpacity>
+          <ImageBackground
+            source={{ uri: imageUrl }}
+            imageStyle={styles.footerBg}>
+            <View style={[styles.footer]}>
+              <Text style={styles.subtitle} numberOfLines={2}>
+                {subtitle}
+              </Text>
+              <View style={styles.reactionIcons}>
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={refreshData}>
+                  <Icon
+                    name="refresh-outline"
+                    size={footerIconSize}
+                    color="#808080"
+                  />
+                  <Text style={styles.iconText}>refresh feed</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={() =>
-                  handleShare({
-                    title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
-                    message:
-                      'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
-                  })
-                }>
-                <Icon name="share-social-outline" size={20} color="#808080" />
-                <Text style={styles.iconText}>share</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={() =>
+                    handleShare({
+                      title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
+                      message:
+                        'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
+                    })
+                  }>
+                  <Icon
+                    name="share-social-outline"
+                    size={footerIconSize}
+                    color="#808080"
+                  />
+                  <Text style={styles.iconText}>share</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={handleDislike}>
-                <Icon
-                  name={getActiveIcon(
-                    'dislike',
-                    'arrow-down',
-                    'arrow-down-circle',
-                  )}
-                  size={20}
-                  color={getActiveIconColor('dislike')}
-                />
-                <Text style={styles.iconText}>
-                  {state.dislike}{' '}
-                  {getPlural(state.dislike, 'downvote', 'downvotes')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.iconContainer}
-                onPress={handleLike}>
-                <Icon
-                  name={getActiveIcon('like', 'arrow-up', 'arrow-up-circle')}
-                  size={20}
-                  color={getActiveIconColor('like')}
-                />
-                <Text style={styles.iconText}>
-                  {state.like} {getPlural(state.like, 'upvote', 'upvotes')}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={handleDislike}>
+                  <Icon
+                    name={getActiveIcon(
+                      'dislike',
+                      'arrow-down',
+                      'arrow-down-circle',
+                    )}
+                    size={footerIconSize}
+                    color={getActiveIconColor('dislike')}
+                  />
+                  <Text style={styles.iconText}>
+                    {state.dislike}{' '}
+                    {getPlural(state.dislike, 'downvote', 'downvotes')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconContainer}
+                  onPress={handleLike}>
+                  <Icon
+                    name={getActiveIcon('like', 'arrow-up', 'arrow-up-circle')}
+                    size={footerIconSize}
+                    color={getActiveIconColor('like')}
+                  />
+                  <Text style={styles.iconText}>
+                    {state.like} {getPlural(state.like, 'upvote', 'upvotes')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          </ImageBackground>
         </View>
       </ViewShot>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    height: '100%',
   },
   item: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: '#fffffc',
+    borderRadius: scale(10),
     shadowColor: '#000',
-    shadowRadius: 10,
+    shadowRadius: scale(10),
   },
   image: {
     width: '100%',
-    height: 210,
+    height: verticalScale(240),
     resizeMode: 'cover',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
+    borderBottomLeftRadius: scale(16),
+    borderBottomRightRadius: scale(16),
   },
-
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(10),
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: scale(5),
+    fontSize: scale(theme.fontSizes.base - 3),
+    color: theme.text.dark.black,
+    ...theme.fontWeights.bold,
   },
   infoText: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: scale(16),
+    marginBottom: scale(10),
   },
-
   contentMetaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingBottom: 6,
-    paddingTop: 2,
+    paddingBottom: scale(6),
+    paddingTop: scale(2),
   },
   contentIcon: {
-    marginRight: 5,
+    marginRight: scale(5),
   },
   contentMetaText: {
-    fontSize: 12,
-    color: '#808080',
-    marginRight: 10,
+    fontSize: scale(theme.fontSizes.xs - 1.4),
+    color: theme.text.dark.dimGray,
+    marginRight: scale(10),
   },
   website: {
     textDecorationLine: 'underline',
   },
   contentInfoText: {
-    fontSize: 14,
-    lineHeight: 18,
-    marginBottom: 10,
+    lineHeight: scale(20),
+    marginBottom: scale(10),
     width: '100%',
+    fontSize: scale(theme.fontSizes.sm - 2.4),
+    color: theme.text.dark.black,
+    ...theme.fontWeights.medium,
   },
-
   imageContainer: {
     position: 'relative',
   },
   attributeIcon: {
-    marginRight: 5,
+    marginRight: scale(5),
   },
   attribute: {
     display: 'flex',
@@ -337,22 +356,24 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     position: 'absolute',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    top: 10,
-    left: 10, // Change left: 10 to right: 10
+    borderRadius: scale(5),
+    paddingHorizontal: scale(5),
+    paddingVertical: scale(2),
+    top: scale(10),
+    left: scale(10),
   },
   attributeText: {
-    color: '#fff',
-    fontSize: 12,
+    fontSize: scale(theme.fontSizes.xs),
+    color: theme.text.light.lightGray,
+    textAlign: 'center',
+    ...theme.fontWeights.medium,
   },
   authorAttr: {
-    fontSize: 10,
+    fontSize: scale(10),
   },
   infoAttr: {
-    bottom: 10,
-    right: 10,
+    bottom: scale(10),
+    right: scale(10),
     top: undefined,
     left: undefined,
   },
@@ -362,34 +383,46 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  footerBg: {
+    height: '100%',
+    width: '100%',
+    borderTopLeftRadius: scale(10),
+    borderTopRightRadius: scale(10),
+  },
   footer: {
     flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    alignItems: 'flex-end',
+    borderTopLeftRadius: scale(10),
+    borderTopRightRadius: scale(10),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(8),
+    backgroundColor: 'rgba(0, 0, 0, 0.87)',
   },
   subtitle: {
-    fontSize: 12,
-    color: '#808080',
+    width: '100%',
+    paddingTop: scale(3),
+    fontSize: scale(theme.fontSizes.xs - 1),
+    color: theme.text.light.lightGray,
     textAlign: 'center',
+    ...theme.fontWeights.normal,
   },
   reactionIcons: {
-    paddingTop: 3,
+    paddingTop: scale(10),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%', // Adjust width as needed
+    width: '100%', // Adjust width as needed
   },
   iconContainer: {
     flex: 1,
     alignItems: 'center',
   },
   iconText: {
-    fontSize: 10,
-    color: '#808080',
+    fontSize: scale(theme.fontSizes.xs - 2),
+    color: theme.text.light.lightGray,
+    textAlign: 'center',
+    ...theme.fontWeights.medium,
   },
-});
+}));
 
-export default NewsItem;
+export default React.memo(NewsItem);

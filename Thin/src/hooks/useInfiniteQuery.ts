@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { uniqBy } from '../helpers/arrays';
 
 type FetchFunction<T> = (page: number) => Promise<T[]>;
 
@@ -27,7 +28,9 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
       while (tries < 3) {
         try {
           const response = await fetchData(page);
-          setData(prevData => [...prevData, ...response]);
+          setData(prevData =>
+            uniqBy([...prevData, ...response], (item: any) => item.uuid),
+          );
           setHasMore(!!response?.length);
           setLoading(false);
           return; // If successful, exit the function

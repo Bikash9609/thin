@@ -1,8 +1,11 @@
+import { makeStyles } from '@rneui/themed';
 import LottieView from 'lottie-react-native';
 import React from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { s, vs } from 'react-native-size-matters';
 
 const AuthLoading: React.FC = () => {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       <Image source={require('../assets/icon.png')} style={styles.logo} />
@@ -25,7 +28,7 @@ const AuthLoading: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -33,8 +36,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 130,
-    height: 130,
+    width: s(130),
+    height: s(130),
   },
   loadingContainer: {
     alignItems: 'center',
@@ -45,16 +48,17 @@ const styles = StyleSheet.create({
   },
   lottieView: {
     // Adjust width and height as needed, avoid full-screen stretching
-    width: 350, // Example width, adjust based on your Lottie animation size
-    height: 250, // Example height, adjust based on your Lottie animation size
+    width: s(350), // Example width, adjust based on your Lottie animation size
+    height: s(300), // Example height, adjust based on your Lottie animation size
   },
   loadingText: {
-    marginTop: 10,
-    color: '#333',
+    marginTop: vs(10),
+    color: theme.text.dark.dimGray,
+    ...theme.fontWeights.medium,
   },
   formContainer: {
     // Styles for your login form
   },
-});
+}));
 
 export default AuthLoading;

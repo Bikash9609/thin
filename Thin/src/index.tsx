@@ -1,20 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  ActivityIndicator,
-  SafeAreaView,
-  ViewToken,
-} from 'react-native';
-import Carousel, { CarouselProps } from 'react-native-snap-carousel';
+import { View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import Carousel from 'react-native-snap-carousel';
 import NewsItem from './Screens/Home';
 import useInfiniteQuery from './hooks/useInfiniteQuery';
 import { request } from './axios';
-import FullScreenLoader from './components/FullScreenLoader';
 import AuthLoading from './components/AuthLoading';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height - 23;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export interface PostResponse {
   uuid: string;
@@ -107,7 +99,7 @@ const Navigator = () => {
   if (loading && !data.length) return <AuthLoading />;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Carousel
         data={data}
         renderItem={renderNewsItem}
@@ -115,7 +107,7 @@ const Navigator = () => {
         sliderHeight={SCREEN_HEIGHT}
         itemHeight={SCREEN_HEIGHT}
         vertical={true}
-        swipeThreshold={70}
+        swipeThreshold={10}
         scrollEnabled
         onEndReached={fetchMore}
         onEndReachedThreshold={0.4}
@@ -123,11 +115,11 @@ const Navigator = () => {
         activeSlideOffset={0}
         ListFooterComponent={
           <View>
-            <ActivityIndicator />
+            <ActivityIndicator size={'large'} />
           </View>
         }
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

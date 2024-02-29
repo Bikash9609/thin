@@ -1,10 +1,8 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import {
-  StyleSheet,
   View,
   Dimensions,
   ImageBackground,
-  ActivityIndicator,
   Alert,
   StatusBar,
   Image,
@@ -13,14 +11,13 @@ import {
 import {
   GoogleSignin,
   GoogleSigninButton,
-  statusCodes,
 } from '@react-native-google-signin/google-signin';
-import auth from '@react-native-firebase/auth'; // Import Firebase authentication module
 import AsyncStorageUtils from '../helpers/asyncStorage';
 import { request } from '../axios';
 import config from '../config/config';
-import FullScreenLoader from './FullScreenLoader';
 import AuthLoading from './AuthLoading';
+import { s, vs } from 'react-native-size-matters';
+import { makeStyles } from '@rneui/themed';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -29,6 +26,7 @@ const webClientId =
   '130248553868-cprpo4t6s3sj2nq9lb8ggo97cpk9905l.apps.googleusercontent.com';
 
 const AuthScreen = ({ children }: PropsWithChildren) => {
+  const styles = useStyles();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -80,7 +78,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     async function login() {
       googleLogin();
-      // setIsSignedIn(await GoogleSignin.isSignedIn());
+      setIsSignedIn(await GoogleSignin.isSignedIn());
     }
     login();
   }, []);
@@ -103,17 +101,16 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
           <View style={styles.logoWrapper}>
             <Image
               source={require('../assets/icon.png')}
-              style={{ width: 60, height: 60, marginRight: 10 }}
+              resizeMode="contain"
+              style={{ width: s(100), height: s(100), marginRight: 10 }}
             />
             <Text style={styles.headerText}>Thin</Text>
           </View>
-          <View>
-            <Text style={styles.heroText}>
-              Stay Updated with Latest News and Blogs
-            </Text>
+          <View style={styles.footerContainer}>
+            <Text style={styles.heroText}>Rapid News & Blogs</Text>
             <Text style={styles.heroSub}>
-              Explore curated content and stay informed about the latest news,
-              insightful blogs, and developer updates, all in one place.
+              Discover news, blogs, and developer updates, all curated in one
+              place.
             </Text>
             <GoogleSigninButton
               style={styles.googleButton}
@@ -129,7 +126,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   container: {
     flex: 1,
     backgroundColor: '#002633',
@@ -139,23 +136,21 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
   },
-
   logoWrapper: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: vs(200),
   },
-
   imageOverlap: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#030e19a4',
     flex: 1,
     width: '100%',
     padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
-
   headerText: {
     color: 'white',
     textAlign: 'left',
@@ -163,11 +158,12 @@ const styles = StyleSheet.create({
     fontSize: 29,
     marginTop: 10,
   },
-
   heroText: {
     textAlign: 'center',
     color: 'white',
     marginBottom: 10,
+    fontSize: s(theme.fontSizes.lg),
+    ...theme.fontWeights.extraBold,
   },
   heroSub: {
     textAlign: 'center',
@@ -181,6 +177,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 30,
   },
-});
+  footerContainer: {
+    padding: s(30),
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: theme.colors.lightBlue[600],
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: vs(200), // Adjust height as needed
+  },
+}));
 
 export default AuthScreen;
