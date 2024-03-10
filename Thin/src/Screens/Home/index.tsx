@@ -14,12 +14,13 @@ import ViewShot from 'react-native-view-shot';
 import { makeStyles } from '@rneui/themed';
 import { Linking } from 'react-native';
 import moment from 'moment';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { scale, verticalScale } from 'react-native-size-matters';
 
 import useShare from '../../hooks/useShare';
 import useCardActions, { ActionType } from '../../hooks/useCardAction';
 import { getPlural } from '../../helpers/wrods';
 import useIsComponentInView from '../../hooks/useIsComponentInView';
+import FullScreenComponent from './FullScreenView';
 
 export interface NewsItemProps {
   uuid: string;
@@ -94,6 +95,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [zoomImage, setZoomImage] = useState(false);
+  const [fullScreenView, setFullScreenView] = useState(false);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -108,6 +110,10 @@ const NewsItem: React.FC<NewsItemProps> = ({
     if (link) {
       Linking.openURL(link);
     }
+  };
+
+  const toggleFullScreenView = () => {
+    setFullScreenView(prev => !prev);
   };
 
   const getActiveIconColor = (type: ActionType) => {
@@ -126,6 +132,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
   return (
     <View ref={componentRef} key={uuid} style={styles.container}>
       <StatusBar showHideTransition="slide" />
+      <FullScreenComponent
+        content={infoText}
+        onClose={toggleFullScreenView}
+        visible={fullScreenView}
+      />
       <ViewShot ref={viewRef} style={styles.item}>
         <View>
           <View style={styles.imageContainer}>
@@ -202,7 +213,10 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.contentInfoText} numberOfLines={10}>
+            <Text
+              style={styles.contentInfoText}
+              numberOfLines={scale(10)}
+              onPress={toggleFullScreenView}>
               {infoText}
             </Text>
           </View>
@@ -328,9 +342,10 @@ const useStyles = makeStyles(theme => ({
     marginRight: scale(5),
   },
   contentMetaText: {
-    fontSize: scale(theme.fontSizes.xs - 1.4),
+    fontSize: scale(theme.fontSizes.xs - 3),
     color: theme.text.dark.dimGray,
     marginRight: scale(10),
+    ...theme.fontWeights.normal,
   },
   website: {
     textDecorationLine: 'underline',
@@ -341,7 +356,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     fontSize: scale(theme.fontSizes.sm - 2.4),
     color: theme.text.dark.black,
-    ...theme.fontWeights.medium,
+    ...theme.fontWeights.normal,
   },
   imageContainer: {
     position: 'relative',
@@ -402,7 +417,7 @@ const useStyles = makeStyles(theme => ({
   subtitle: {
     width: '100%',
     paddingTop: scale(3),
-    fontSize: scale(theme.fontSizes.xs - 1),
+    fontSize: scale(theme.fontSizes.xs - 2),
     color: theme.text.light.lightGray,
     textAlign: 'center',
     ...theme.fontWeights.normal,

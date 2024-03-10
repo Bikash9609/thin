@@ -52,6 +52,8 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       setIsSignedIn(true); // Store token in AsyncStorage
       await AsyncStorageUtils.setItem(config.tokenStorageKey, res.token);
     } catch (error) {
+      await AsyncStorageUtils.clearAll();
+      setIsSignedIn(false);
       Alert.prompt('Error logging in');
     } finally {
       setIsLoading(false);
@@ -66,10 +68,8 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Fetch user token from Firebase
       if (!userInfo.idToken) throw new Error('Error logging in');
       await fetchUserLoginToken(userInfo.idToken);
-
-      setIsSignedIn(true);
     } catch (error: any) {
-      setIsLoading(false);
+      setIsSignedIn(false);
       Alert.prompt('Error authenticating with Google');
       console.log(error);
     }

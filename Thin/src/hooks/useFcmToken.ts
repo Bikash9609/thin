@@ -6,8 +6,20 @@ import { request } from '../axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
+import useNotificationPermission from '../hoc/withNotification';
+
+// Register background handler
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+  return remoteMessage;
+});
+
+//KillState
+messaging().getInitialNotification();
 
 const useFirebasePushNotifications = (): void => {
+  const { requestNotificationPermission } = useNotificationPermission();
+
   useEffect(() => {
     const unsubscribe = messaging().onMessage(
       async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
@@ -19,8 +31,8 @@ const useFirebasePushNotifications = (): void => {
     const handlePermissionAndToken = async (): Promise<void> => {
       try {
         // Request permission for receiving push notifications
-        await messaging().requestPermission();
-        console.log('Permission granted!');
+        const permission = await requestNotificationPermission();
+        if (!permission) return;
 
         // Get the device token
         const fcmToken: string | undefined = await messaging().getToken();
