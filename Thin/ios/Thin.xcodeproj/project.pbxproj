@@ -28,6 +28,7 @@
 		0193F41482C3480C853FE3A2 /* IBMPlexSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D62B3987006A4D6692A70755 /* IBMPlexSans-SemiBoldItalic.ttf */; };
 		BAC1DEE61B274EC49E0BC28C /* IBMPlexSans-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BCB2EB92408749588AF3EA60 /* IBMPlexSans-Thin.ttf */; };
 		C05058A8AA4E48D38E9CCCF5 /* IBMPlexSans-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A60BA5C390B9458AAAE37B39 /* IBMPlexSans-ThinItalic.ttf */; };
+		84466844275841DA84E199A8 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A93FBC38FCF6417BAAFCAE53 /* BootSplash.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		D62B3987006A4D6692A70755 /* IBMPlexSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-SemiBoldItalic.ttf"; path = "../assets/fonts/IBMPlexSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		BCB2EB92408749588AF3EA60 /* IBMPlexSans-Thin.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-Thin.ttf"; path = "../assets/fonts/IBMPlexSans-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		A60BA5C390B9458AAAE37B39 /* IBMPlexSans-ThinItalic.ttf */ = {isa = PBXFileReference; name = "IBMPlexSans-ThinItalic.ttf"; path = "../assets/fonts/IBMPlexSans-ThinItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		A93FBC38FCF6417BAAFCAE53 /* BootSplash.storyboard */ = {isa = PBXFileReference; name = "BootSplash.storyboard"; path = "Thin/BootSplash.storyboard"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				A93FBC38FCF6417BAAFCAE53 /* BootSplash.storyboard */,
 			);
 			name = Thin;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 				0193F41482C3480C853FE3A2 /* IBMPlexSans-SemiBoldItalic.ttf in Resources */,
 				BAC1DEE61B274EC49E0BC28C /* IBMPlexSans-Thin.ttf in Resources */,
 				C05058A8AA4E48D38E9CCCF5 /* IBMPlexSans-ThinItalic.ttf in Resources */,
+				84466844275841DA84E199A8 /* BootSplash.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
