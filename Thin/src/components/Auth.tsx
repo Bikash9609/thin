@@ -8,6 +8,7 @@ import {
   Image,
   Text,
 } from 'react-native';
+import BootSplash from 'react-native-bootsplash';
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -72,6 +73,8 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       setIsSignedIn(false);
       Alert.prompt('Error authenticating with Google');
       console.log(error);
+    } finally {
+      await BootSplash.hide({ fade: true });
     }
   };
 
