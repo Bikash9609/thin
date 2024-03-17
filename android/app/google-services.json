@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "130248553868",
+    "project_id": "thinapp-56af9",
+    "storage_bucket": "thinapp-56af9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130248553868:android:d59e418b23bf59363052a9",
+        "android_client_info": {
+          "package_name": "com.thin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "130248553868-9e06i3dl5thncffkb3gderkjelftn1fr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thin",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAm-jPAQcuTXZhJb9YfDCsdCwgg9azn59g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
