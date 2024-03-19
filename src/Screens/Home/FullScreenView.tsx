@@ -7,12 +7,14 @@ interface FullScreenComponentProps {
   visible: boolean;
   onClose: () => void;
   content: string;
+  header: string;
 }
 
 const FullScreenComponent = ({
   visible,
   onClose,
   content,
+  header,
 }: FullScreenComponentProps) => {
   const styles = useStyles();
 
@@ -22,12 +24,13 @@ const FullScreenComponent = ({
     <View style={styles.container}>
       <View style={styles.overlay} />
       <View style={styles.contentContainer}>
-        <ScrollView style={styles.scrollView}>
-          <Text style={styles.textContent} numberOfLines={vs(20)}>
-            {content}
-            {content}
-            {content}
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}>
+          <Text style={styles.header} numberOfLines={3}>
+            {header}
           </Text>
+          <Text style={styles.textContent}>{content}</Text>
         </ScrollView>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>Close</Text>
@@ -49,6 +52,12 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,
+  },
+  header: {
+    marginBottom: scale(10),
+    fontSize: scale(theme.fontSizes.base - 3),
+    color: theme.text.dark.black,
+    ...theme.fontWeights.bold,
   },
   overlay: {
     position: 'absolute',

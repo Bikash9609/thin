@@ -7,6 +7,7 @@ import { request } from './axios';
 import AuthLoading from './components/AuthLoading';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface PostResponse {
   uuid: string;
@@ -97,7 +98,6 @@ const Navigator = () => {
   );
 
   if (loading && !data.length) return <AuthLoading />;
-  if (!loading && !data.length && !hasMore) throw new Error('No items found');
 
   return (
     <View style={styles.container}>
@@ -105,9 +105,9 @@ const Navigator = () => {
         data={data}
         renderItem={renderNewsItem}
         keyExtractor={item => item.uuid}
-        sliderHeight={SCREEN_HEIGHT}
-        itemHeight={SCREEN_HEIGHT}
-        vertical={true}
+        sliderWidth={SCREEN_WIDTH} // Set sliderWidth instead of sliderHeight for horizontal scrolling
+        itemWidth={SCREEN_WIDTH} // Set itemWidth instead of itemHeight for horizontal scrolling
+        vertical={false} // Set vertical to false for horizontal scrolling
         swipeThreshold={10}
         scrollEnabled
         onEndReached={fetchMore}

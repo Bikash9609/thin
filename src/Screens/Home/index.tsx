@@ -7,20 +7,23 @@ import {
   StatusBar,
   Pressable,
   ImageBackground,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ImageView from 'react-native-image-viewing';
 import ViewShot from 'react-native-view-shot';
-import { makeStyles } from '@rneui/themed';
+import { LinearProgress, makeStyles, useTheme } from '@rneui/themed';
 import { Linking } from 'react-native';
 import moment from 'moment';
-import { scale, verticalScale } from 'react-native-size-matters';
+import { scale, verticalScale, vs, s } from 'react-native-size-matters';
 
 import useShare from '../../hooks/useShare';
 import useCardActions, { ActionType } from '../../hooks/useCardAction';
-import { getPlural } from '../../helpers/wrods';
+import { getPlural } from '../../helpers/words';
 import useIsComponentInView from '../../hooks/useIsComponentInView';
 import FullScreenComponent from './FullScreenView';
+import { numberToWords } from '../../helpers/numbers';
+import { ScreenWidth } from '@rneui/base';
 
 export interface NewsItemProps {
   uuid: string;
@@ -78,10 +81,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
   viewerReaction,
   refreshData,
 }) => {
+  const { theme } = useTheme();
   const styles = useStyles();
   const [isInView, componentRef] = useIsComponentInView();
   const { handleShare, viewRef } = useShare();
-  const { handleAction, state, activeUserValue } = useCardActions(
+  const { handleAction, state, activeUserValue, loading } = useCardActions(
     {
       dislike: +dislikes,
       like: +likes,
@@ -119,6 +123,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   const getActiveIconColor = (type: ActionType) => {
     return type === activeUserValue ? '#fff' : '#808080';
   };
+
   const getActiveIcon = (
     type: ActionType,
     inactive: string,
@@ -136,6 +141,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
         content={infoText}
         onClose={toggleFullScreenView}
         visible={fullScreenView}
+        header={title}
       />
       <ViewShot ref={viewRef} style={styles.item}>
         <View>
@@ -213,16 +219,28 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text
-              style={styles.contentInfoText}
-              numberOfLines={scale(10)}
-              onPress={toggleFullScreenView}>
-              {infoText}
-            </Text>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.contentInfoScrollView}>
+              <Text
+                style={styles.contentInfoText}
+                onPress={toggleFullScreenView}>
+                {infoText}
+              </Text>
+            </ScrollView>
           </View>
         </View>
 
         <View style={styles.footerContainer}>
+          {loading && (
+            <View style={styles.linearProgressContainer}>
+              <LinearProgress
+                variant="indeterminate"
+                color={theme.colors.blue[400]}
+                style={{ height: 1, width: ScreenWidth - s(20) }}
+              />
+            </View>
+          )}
           <ImageBackground
             source={{ uri: imageUrl }}
             imageStyle={styles.footerBg}>
@@ -230,6 +248,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
               <Text style={styles.subtitle} numberOfLines={2}>
                 {subtitle}
               </Text>
+
               <View style={styles.reactionIcons}>
                 <TouchableOpacity
                   style={styles.iconContainer}
@@ -260,6 +279,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  disabled={loading}
                   style={styles.iconContainer}
                   onPress={handleDislike}>
                   <Icon
@@ -272,11 +292,12 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     color={getActiveIconColor('dislike')}
                   />
                   <Text style={styles.iconText}>
-                    {state.dislike}{' '}
+                    {numberToWords(state.dislike.toString())}{' '}
                     {getPlural(state.dislike, 'downvote', 'downvotes')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  disabled={loading}
                   style={styles.iconContainer}
                   onPress={handleLike}>
                   <Icon
@@ -285,7 +306,8 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     color={getActiveIconColor('like')}
                   />
                   <Text style={styles.iconText}>
-                    {state.like} {getPlural(state.like, 'upvote', 'upvotes')}
+                    {numberToWords(state.dislike.toString())}{' '}
+                    {getPlural(state.like, 'upvote', 'upvotes')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -350,6 +372,9 @@ const useStyles = makeStyles(theme => ({
   website: {
     textDecorationLine: 'underline',
   },
+  contentInfoScrollView: {
+    maxHeight: vs(225),
+  },
   contentInfoText: {
     lineHeight: scale(20),
     marginBottom: scale(10),
@@ -392,6 +417,8 @@ const useStyles = makeStyles(theme => ({
     top: undefined,
     left: undefined,
   },
+
+  linearProgressContainer: { display: 'flex', alignItems: 'center' },
   footerContainer: {
     position: 'absolute',
     left: 0,

@@ -20,8 +20,11 @@ const useCardActions = (
     ActionType | undefined
   >(viewerAction);
   const [state, setState] = useState<CardState>(initialState);
+  const [loading, setLoading] = useState(false);
 
   const handleAction = async (action: ActionType) => {
+    setLoading(true);
+
     const prevState = { ...state };
     let newState: CardState;
 
@@ -52,6 +55,8 @@ const useCardActions = (
       console.error('Error updating card state:', error);
       // Display error message to the user
       // showToast('Failed to update card state. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,7 +128,7 @@ const useCardActions = (
     console.log('Post reacted', initialState.postUuid, '->', action);
   };
 
-  return { state, handleAction, activeUserValue };
+  return { state, handleAction, activeUserValue, loading };
 };
 
 export default useCardActions;

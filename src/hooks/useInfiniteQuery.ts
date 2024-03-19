@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { uniqBy } from '../helpers/arrays';
 
 type FetchFunction<T> = (page: number) => Promise<T[]>;
@@ -19,33 +19,34 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState<any | null>(null);
 
-  useEffect(() => {
-    async function fetchDataAndAppend() {
-      setLoading(true);
-      let tries = 0;
-      let delay = 1000; // Initial delay in milliseconds
+  const fetchDataAndAppend = useCallback(async () => {
+    setLoading(true);
+    let tries = 0;
+    let delay = 1000; // Initial delay in milliseconds
 
-      while (tries < 3) {
-        try {
-          const response = await fetchData(page);
-          setHasMore(!!response?.length);
-          setData(prevData =>
-            uniqBy([...prevData, ...response], (item: any) => item.uuid),
-          );
-          setLoading(false);
-          return; // If successful, exit the function
-        } catch (error) {
-          setError(error);
-          console.error(`Error fetching data (attempt ${tries + 1}):`, error);
-          tries++;
-          await new Promise(resolve => setTimeout(resolve, delay)); // Delay before next attempt
-          delay *= 2; // Double the delay for the next attempt
-        }
+    while (tries < 3) {
+      try {
+        const response = await fetchData(page);
+        setHasMore(!!response?.length);
+        setData(prevData =>
+          uniqBy([...prevData, ...response], (item: any) => item.uuid),
+        );
+        setLoading(false);
+        return; // If successful, exit the function
+      } catch (error) {
+        setError(error);
+        console.error(`Error fetching data (attempt ${tries + 1}):`, error);
+        tries++;
+        await new Promise(resolve => setTimeout(resolve, delay)); // Delay before next attempt
+        delay *= 2; // Double the delay for the next attempt
       }
-
-      // If unsuccessful after three attempts, set loading to false
-      setLoading(false);
     }
+
+    // If unsuccessful after three attempts, set loading to false
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
     if (!error && !loading) {
       if (page === 1) {
         setData([]);
@@ -57,8 +58,6 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
     }
   }, [page, error, fetchData]);
 
-  console.log(data);
-
   const fetchMore = () => {
     if (hasMore && !loading && data.length) setPage(prevPage => prevPage + 1);
   };
@@ -69,6 +68,9 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
     setHasMore(true);
     setLoading(false);
     setError(null);
+    setTimeout(() => {
+      fetchDataAndAppend();
+    }, 5);
   };
 
   const values: Response<T> = useMemo(() => {
