@@ -53,7 +53,7 @@ const updatePostViewed = async (item: PostResponse) => {
 
 const Navigator = () => {
   const [viewedPosts, setViewedPosts] = useState<string[]>([]);
-  const [data, { fetchMore, loading, refreshData }] =
+  const [data, { fetchMore, loading, refreshData, hasMore }] =
     useInfiniteQuery(fetchPosts);
 
   const handleItemViewed = React.useCallback(
@@ -97,6 +97,7 @@ const Navigator = () => {
   );
 
   if (loading && !data.length) return <AuthLoading />;
+  if (!loading && !data.length && !hasMore) throw new Error('No items found');
 
   return (
     <View style={styles.container}>

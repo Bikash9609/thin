@@ -102,3 +102,9 @@ module.exports = {
 
 - Create `assets/fonts` in the main directory (not inside src) and copy the font files(.ttf) directly inside it
 - Next run `npx react-native-asset`
+
+# For Building
+
+the short answer uses `gradlew assembleRelease` instead.
+
+not short answer :) The command you are using `gradlew bundleRelease` builds an android App bundle. read this: Difference between apk (.apk) and app bundle (.aab) and this: https://developer.android.com/guide/app-bundle AAB file is new and not all stores support it.

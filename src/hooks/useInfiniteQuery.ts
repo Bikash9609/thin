@@ -57,8 +57,10 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
     }
   }, [page, error, fetchData]);
 
+  console.log(data);
+
   const fetchMore = () => {
-    if (hasMore && !loading) setPage(prevPage => prevPage + 1);
+    if (hasMore && !loading && data.length) setPage(prevPage => prevPage + 1);
   };
 
   const refreshData = () => {
