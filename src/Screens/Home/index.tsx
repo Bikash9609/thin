@@ -306,7 +306,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     color={getActiveIconColor('like')}
                   />
                   <Text style={styles.iconText}>
-                    {numberToWords(state.dislike.toString())}{' '}
+                    {numberToWords(state.like.toString())}{' '}
                     {getPlural(state.like, 'upvote', 'upvotes')}
                   </Text>
                 </TouchableOpacity>
