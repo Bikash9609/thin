@@ -1,7 +1,7 @@
 import { makeStyles } from '@rneui/themed';
 import LottieView from 'lottie-react-native';
 import React from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { s, vs } from 'react-native-size-matters';
 
 const AuthLoading: React.FC = () => {

@@ -664,6 +664,7 @@ export const AppTheme = {
     disabled: '#555555',
     selected: '#4169E1',
   },
+  zIndex: { stickyHeader: 111 },
   components: componentsModification,
 };
 

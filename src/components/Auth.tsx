@@ -18,6 +18,7 @@ import config from '../config/config';
 import AuthLoading from './AuthLoading';
 import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
+import { useAuth } from '../context/AuthProvider';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -27,6 +28,7 @@ const webClientId =
 
 const AuthScreen = ({ children }: PropsWithChildren) => {
   const styles = useStyles();
+  const { login, logout } = useAuth();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -51,6 +53,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Call onSuccess callback with the token
       setIsSignedIn(true); // Store token in AsyncStorage
       await AsyncStorageUtils.setItem(config.tokenStorageKey, res.token);
+      return res;
     } catch (error) {
       await AsyncStorageUtils.clearAll();
       setIsSignedIn(false);
@@ -67,8 +70,10 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       const userInfo = await GoogleSignin.signIn();
       // Fetch user token from Firebase
       if (!userInfo?.idToken) throw new Error('Error logging in');
-      await fetchUserLoginToken(userInfo.idToken);
+      const res = await fetchUserLoginToken(userInfo.idToken);
+      login(res);
     } catch (error: any) {
+      logout();
       setIsSignedIn(false);
       Alert.prompt('Error authenticating with Google');
       console.log(error);
