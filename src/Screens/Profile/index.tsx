@@ -1,14 +1,6 @@
 import { makeStyles } from '@rneui/themed';
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  Modal,
-  Button,
-} from 'react-native';
+import { View, Text, Image, FlatList, Modal, Button } from 'react-native';
 import { s } from 'react-native-size-matters';
 import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';

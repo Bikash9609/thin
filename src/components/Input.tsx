@@ -18,6 +18,7 @@ interface InputProps {
   labelStyle?: TextStyle | TextStyle[];
   label: string;
   placeholder: string;
+  autoFocus?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -29,12 +30,14 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   containerStyle,
   labelStyle,
+  autoFocus,
 }) => {
   const styles = useStyles();
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TextInput
+        autoFocus={autoFocus}
         multiline={multiline}
         value={value}
         onChangeText={onChangeText}

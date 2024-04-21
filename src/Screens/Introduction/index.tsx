@@ -17,19 +17,23 @@ const features: Feature[] = [
   {
     id: 1,
     image: 'https://via.placeholder.com/500',
-    text: 'Feature 1: Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    text: 'Read short blogs, news, and updates in a fraction of time, saving your day and time.',
   },
   {
     id: 2,
     image: 'https://via.placeholder.com/300',
-    text: 'Feature 2: Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    text: 'Add your own content and share it with others to read and get liked.',
   },
   {
     id: 3,
     image: 'https://via.placeholder.com/300',
-    text: 'Feature 3: Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+    text: "Like or dislike content you enjoy or don't like.",
   },
-  // Add more features as needed
+  {
+    id: 4,
+    image: 'https://via.placeholder.com/300',
+    text: 'Stay updated with more features coming soon.',
+  },
 ];
 
 const IntroductionScreen: React.FC = () => {

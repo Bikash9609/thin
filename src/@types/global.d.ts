@@ -4,4 +4,5 @@ type ScreensParamsList = {
   AddStory: undefined;
   ProfileScreen: undefined;
   IntroductionScreen: undefined;
+  AuthorSignupScreen: undefined;
 };

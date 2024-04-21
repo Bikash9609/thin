@@ -7,17 +7,22 @@ import Header from './components/Header';
 import { AppBarProvider } from './context/AppBarProvider';
 import ProfileScreen from './Screens/Profile';
 import IntroductionScreen from './Screens/Introduction/index';
+import AuthorSignupScreen from './Screens/AuthorSignup';
 
 const Stack =
   createNativeStackNavigator<
     Pick<
       ScreensParamsList,
-      'Home' | 'AddStory' | 'ProfileScreen' | 'IntroductionScreen'
+      | 'Home'
+      | 'AddStory'
+      | 'ProfileScreen'
+      | 'IntroductionScreen'
+      | 'AuthorSignupScreen'
     >
   >();
 
 function StackNavigator() {
-  const initialRouteName = 'IntroductionScreen';
+  const initialRouteName = 'AuthorSignupScreen';
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
@@ -50,6 +55,13 @@ function StackNavigator() {
       <Stack.Screen
         name="IntroductionScreen"
         component={IntroductionScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="AuthorSignupScreen"
+        component={AuthorSignupScreen}
         options={{
           headerShown: false,
         }}
