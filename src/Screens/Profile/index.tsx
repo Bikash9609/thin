@@ -1,66 +1,60 @@
 import { makeStyles } from '@rneui/themed';
 import React, { useState } from 'react';
-import { View, Text, Image, FlatList, Modal, Button } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  Modal,
+  Button,
+  Pressable,
+} from 'react-native';
 import { s } from 'react-native-size-matters';
 import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import useRequest from '../../hooks/useRequest';
 
-interface Item {
-  id: number;
+type Item = {
+  uuid: string;
   title: string;
-  description: string;
-  image: string;
-}
-
-const data: Item[] = [
-  {
-    id: 1,
-    title: 'Item 1',
-    description: 'Description of item 1',
-    image:
-      'https://static.inshorts.com/inshorts/images/v1/variants/webp/xs/2024/02_feb/10_sat/img_1707557430398_80.webp',
-  },
-  {
-    id: 2,
-    title: 'Item 2',
-    description: 'Description of item 2',
-    image: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 3,
-    title: 'Item 3',
-    description: 'Description of item 3',
-    image: 'https://via.placeholder.com/150',
-  },
-  // Add more items as needed
-];
+  infoText: string;
+  datePublished: Date;
+  createdAt: Date;
+  imageUrl: string;
+};
 
 const ProfileScreen: React.FC = () => {
   const styles = useStyles();
   const { navigate } = useNavigation() as any;
-  const [items, setItems] = useState<Item[]>(data);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const renderItem = ({ item }: { item: Item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <View style={styles.itemContent}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.description} numberOfLines={2}>
-          {item.description}
-        </Text>
+  const ownPostsQuery = useRequest<Item[]>({
+    method: 'get',
+    url: '/posts/own',
+  });
 
-        <Ionicons
-          onPress={() => handleDeleteItem(item)}
-          name="trash-outline"
-          size={20}
-          color="black"
-          style={styles.deleteButtonIcon}
-        />
+  const renderItem = ({ item }: { item: Item }) => (
+    <Pressable onPress={() => navigate(`NewsItemScreen`, { uuid: item.uuid })}>
+      <View style={styles.itemContainer}>
+        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <View style={styles.itemContent}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.description} numberOfLines={2}>
+            {item.infoText}
+          </Text>
+
+          <Ionicons
+            onPress={() => handleDeleteItem(item)}
+            name="trash-outline"
+            size={20}
+            color="black"
+            style={styles.deleteButtonIcon}
+          />
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 
   const handleDeleteItem = (item: Item) => {
@@ -70,8 +64,10 @@ const ProfileScreen: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (selectedItem) {
-      const updatedItems = items.filter(i => i.id !== selectedItem.id);
-      setItems(updatedItems);
+      const updatedItems = ownPostsQuery.data!.filter(
+        i => i.uuid !== selectedItem.uuid,
+      );
+      ownPostsQuery.setData(updatedItems);
       setIsModalVisible(false);
       setSelectedItem(null);
     }
@@ -84,14 +80,26 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={items}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        ListHeaderComponent={() => (
+      {ownPostsQuery.data && ownPostsQuery.data.length > 0 ? (
+        <FlatList
+          data={ownPostsQuery.data}
+          renderItem={renderItem}
+          keyExtractor={item => item.uuid.toString()}
+          ListHeaderComponent={() => (
+            <Header onAddNewContent={() => navigate('AddStory')} />
+          )}
+        />
+      ) : (
+        <>
           <Header onAddNewContent={() => navigate('AddStory')} />
-        )}
-      />
+          <View style={styles.noItemsContainer}>
+            <Text style={styles.noItemsText}>
+              No posts found. Add some posts by creating new stories!
+            </Text>
+          </View>
+        </>
+      )}
+
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -135,12 +143,14 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
   },
   title: {
-    fontSize: s(theme.fontSizes.base),
+    fontSize: s(theme.fontSizes.base - 3),
+    color: theme.text.dark.black,
     marginBottom: s(5),
     ...theme.fontWeights.semiBold,
   },
   description: {
-    fontSize: s(theme.fontSizes.sm),
+    fontSize: s(theme.fontSizes.sm - 3),
+    color: theme.text.dark.deepGray,
     marginBottom: s(3),
     ...theme.fontWeights.normal,
   },
@@ -167,6 +177,18 @@ const useStyles = makeStyles(theme => ({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+  },
+
+  noItemsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noItemsText: {
+    color: theme.text.dark.dimGray,
+    textAlign: 'center',
+    fontSize: s(theme.fontSizes.base),
+    ...theme.fontWeights.semiBold,
   },
 }));
 

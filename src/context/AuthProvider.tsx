@@ -4,20 +4,24 @@ import React, {
   useCallback,
   useContext,
   useState,
+  SetStateAction,
 } from 'react';
 
 // Define the shape of the user object
-interface User {
+export interface UserStored {
   token: string;
+  user: User;
   // Add more properties as needed
 }
 
 // Define the shape of the authentication context
 interface AuthContextType {
-  user: User | null;
-  login: (userData: User) => void;
+  user: UserStored | null;
+  login: (userData: UserStored) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
+  getUserInfo: () => User | undefined;
+  setData: (x: UserStored) => any;
 }
 
 // Create the authentication context with initial values
@@ -26,6 +30,8 @@ const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   isAuthenticated: () => false,
+  getUserInfo: () => undefined,
+  setData: () => undefined,
 });
 
 // Custom hook to access the authentication context
@@ -33,26 +39,30 @@ export const useAuth = () => useContext(AuthContext);
 
 // Create the AuthProvider component
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [data, setData] = useState<UserStored | null>(null);
 
   // Function to handle user login
-  const login = (userData: User) => {
-    setUser(userData);
+  const login = (userData: UserStored) => {
+    setData(userData);
   };
 
   // Function to handle user logout
   const logout = () => {
-    setUser(null);
+    setData(null);
   };
 
-  const isAuthenticated = useCallback(() => !!(user && user.token), [user]);
+  const isAuthenticated = useCallback(() => !!(data && data.token), [data]);
+
+  const getUserInfo = useCallback(() => data?.user, [data]);
 
   // Value to be provided by the context
   const authContextValue: AuthContextType = {
-    user,
+    user: data,
     login,
+    getUserInfo,
     logout,
     isAuthenticated,
+    setData,
   };
 
   return (

@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   fixed = false,
 }) => {
   const { navigate } = useNavigation() as any;
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, getUserInfo } = useAuth();
   const { isAppBarVisible, toggleAppBarVisibility } = useAppBar();
   const { theme } = useTheme();
   const styles = useStyles();
@@ -75,12 +75,14 @@ const Header: React.FC<HeaderProps> = ({
           <TouchableOpacity
             style={styles.rightContainer}
             onPress={() => {
-              navigate('AddStory');
+              navigate(
+                getUserInfo()?.authorId ? 'AddStory' : 'AuthorSignupScreen',
+              );
               toggleAppBarVisibility();
             }}>
             <Ionicons
               name={rightButtonIconName}
-              size={s(24)}
+              size={s(18)}
               color={theme.colors.white}
             />
             {rightButtonText && (
@@ -197,9 +199,9 @@ const useStyles = makeStyles(theme => ({
   },
   rightText: {
     marginLeft: s(3),
-    lineHeight: s(20),
+    lineHeight: s(18),
     color: theme.colors.white,
-    fontSize: s(theme.fontSizes.base - 1),
+    fontSize: s(theme.fontSizes.base - 2),
     ...theme.fontWeights.medium,
   },
 }));

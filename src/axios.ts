@@ -16,7 +16,7 @@ const api: AxiosInstance = axios.create({
   timeout: 10000, // Adjust timeout as needed
 });
 
-interface RequestOptions {
+export interface RequestOptions {
   method: 'get' | 'post' | 'put' | 'patch' | 'delete';
   url: string;
   data?: any;

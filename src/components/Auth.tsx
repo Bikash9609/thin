@@ -44,7 +44,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
 
   const fetchUserLoginToken = async (idToken: string) => {
     try {
-      const res = await request<{ token: string }>({
+      const res = await request<{ token: string; user: User }>({
         method: 'post',
         url: '/login',
         data: { token: idToken },
@@ -71,6 +71,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Fetch user token from Firebase
       if (!userInfo?.idToken) throw new Error('Error logging in');
       const res = await fetchUserLoginToken(userInfo.idToken);
+      console.log(res);
       login(res);
     } catch (error: any) {
       logout();

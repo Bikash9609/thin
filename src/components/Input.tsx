@@ -1,12 +1,6 @@
 import { Text, makeStyles } from '@rneui/themed';
 import React from 'react';
-import {
-  TextInput,
-  StyleSheet,
-  TextStyle,
-  ViewStyle,
-  View,
-} from 'react-native';
+import { TextInput, TextStyle, View } from 'react-native';
 import { s } from 'react-native-size-matters';
 
 interface InputProps {
@@ -19,6 +13,7 @@ interface InputProps {
   label: string;
   placeholder: string;
   autoFocus?: boolean;
+  editable?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -31,6 +26,7 @@ const Input: React.FC<InputProps> = ({
   containerStyle,
   labelStyle,
   autoFocus,
+  editable,
 }) => {
   const styles = useStyles();
   return (
@@ -44,6 +40,7 @@ const Input: React.FC<InputProps> = ({
         style={[styles.input, inputStyle].flat()}
         placeholder={placeholder}
         placeholderTextColor="#999"
+        editable={editable}
       />
     </View>
   );

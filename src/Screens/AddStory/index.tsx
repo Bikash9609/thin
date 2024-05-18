@@ -1,4 +1,12 @@
-import { View, ScrollView, Dimensions, Pressable, Text } from 'react-native';
+import {
+  View,
+  ScrollView,
+  Dimensions,
+  Pressable,
+  Text,
+  Alert,
+  Image,
+} from 'react-native';
 import {
   useTheme,
   Button,
@@ -10,10 +18,17 @@ import { useState } from 'react';
 import { ms, s } from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Input from '../../components/Input';
-import { toTitleCase, validateWordCount } from '../../helpers/words';
+import {
+  getWordCount,
+  toTitleCase,
+  validateWordCount,
+} from '../../helpers/words';
 import ImageUploader from '../../components/ImageUploader';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
+import { ImagePickerResponse } from 'react-native-image-picker';
+import useMutation from '../../hooks/useMutation';
+import CategorySelector, { Category } from '../../components/CategorySelector';
 
 type Form = {
   title?: string;
@@ -23,6 +38,12 @@ type Form = {
   imageUrl?: string;
   imageAttr?: string;
   imageAttrUrl?: string;
+};
+
+const stepWiseValidations = {
+  step1: ['title', 'subtitle', 'categoryId'],
+  step2: ['description'],
+  step3: ['footerText', 'imageAttr', 'imageUrl'],
 };
 
 const { height } = Dimensions.get('screen');
@@ -36,18 +57,49 @@ const AddStoryScreen = () => {
 
   const [activeStep, setActiveStep] = useState(1);
   const [imageUploader, setImageUploader] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
-  const handleSave = () => {
-    // Implement your logic to save the data here
-    console.log('Saving post...');
+  const { mutate, isLoading } = useMutation({
+    method: 'put',
+    url: '/post/create',
+    defaultHeaders: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onSuccess(data: { uuid: string }) {
+      if (data.uuid) {
+        navigate('ProfileScreen');
+      }
+    },
+  });
+
+  const handleSave = async () => {
+    try {
+      const data = { ...form, categoryId: selectedCategory!.uuid };
+      // Implement your logic to save the data here
+      console.log('Saving post...', {
+        ...form,
+        categoryId: selectedCategory!.uuid,
+        imageUrl,
+      });
+      const formData = new FormData();
+      Object.keys(data).forEach(item =>
+        formData.append(item, (data as any)[item] as string),
+      );
+      formData.append('file', {
+        uri: imageUrl,
+        name: 'thumbnail.jpg',
+        type: 'image/jpeg', // Adjust the type according to your file type
+      });
+      await mutate(formData);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleStepChange = (back?: boolean) => {
-    if (back && activeStep <= 1) return;
-    setActiveStep(step => (back ? step - 1 : step + 1));
-  };
-
-  const validations = (type: string, value: string) => {
+  const onChangeValidations = (type: string, value: string) => {
     const updatedValue = value;
     if (type === 'title') {
       return toTitleCase(value.substring(0, 60));
@@ -56,7 +108,7 @@ const AddStoryScreen = () => {
       return value.substring(0, 60);
     }
     if (type === 'description') {
-      return validateWordCount(value, 500);
+      return validateWordCount(value, 500) ? value : value.substring(0, 500);
     }
     if (type === 'footerText') {
       return value.substring(0, 60);
@@ -67,8 +119,81 @@ const AddStoryScreen = () => {
     return updatedValue;
   };
 
-  const onChange = (type: string) => (value: string) => {
-    setForm(prev => ({ ...prev, [type]: validations(type, value) }));
+  const onSaveValidator = (type: string) => {
+    const value = {
+      ...form,
+      categoryId: selectedCategory?.uuid,
+      imageUrl,
+    }[type];
+
+    if (type === 'categoryId') return !!selectedCategory?.uuid;
+    if (type === 'imageUrl') return !!imageUrl;
+
+    if (value === undefined || value === null || value.trim() === '') {
+      return false;
+    }
+
+    if (
+      type === 'title' ||
+      type === 'subtitle' ||
+      type === 'footerText' ||
+      type === 'imageAttr'
+    ) {
+      const maxLength = type === 'imageAttr' ? 30 : 60;
+      return value.length >= 3 && value.length <= maxLength;
+    }
+
+    if (type === 'description') {
+      return getWordCount(value) > 100 && validateWordCount(value, 500);
+    }
+
+    return true;
+  };
+
+  const validateStepData = (stepTypes: string[]) => {
+    for (const type of stepTypes) {
+      const value = {
+        ...(form[type as keyof Form] as any),
+        categoryId: selectedCategory?.uuid,
+        imageUrl,
+      };
+
+      if (value === undefined || value === null || !onSaveValidator(type)) {
+        return false;
+      }
+      console.log(type);
+    }
+    return true;
+  };
+
+  const handleStepChange = (back?: boolean) => {
+    if (back && activeStep <= 1) return;
+
+    if (
+      !back &&
+      !validateStepData(
+        stepWiseValidations[
+          `step${activeStep}` as keyof typeof stepWiseValidations
+        ],
+      )
+    )
+      return;
+
+    if (activeStep > 2) return handleSave();
+
+    setActiveStep(step => (back ? step - 1 : step + 1));
+  };
+
+  const onChange = (type: string) => (value: string | ImagePickerResponse) => {
+    if (type === 'imageUrl') {
+      const imageUri = (value as ImagePickerResponse).assets?.[0]?.uri;
+      setImageUploader(false);
+      return setImageUrl(imageUri ?? '');
+    }
+    setForm(prev => ({
+      ...prev,
+      [type]: onChangeValidations(type, value as string),
+    }));
   };
 
   let progress = 0.33333;
@@ -104,6 +229,10 @@ const AddStoryScreen = () => {
 
         {activeStep === 1 && (
           <>
+            <CategorySelector
+              selectedCategory={selectedCategory}
+              onSelect={setSelectedCategory}
+            />
             <Input
               multiline
               value={form.title ?? ''}
@@ -140,21 +269,28 @@ const AddStoryScreen = () => {
           <>
             <Pressable onPress={() => setImageUploader(true)}>
               <View style={styles.imageUploadContainer}>
-                <Ionicons
-                  name="camera-outline"
-                  size={s(24)}
-                  color={theme.colors.blue[500]}
-                />
+                {imageUrl ? (
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.headerImage}
+                  />
+                ) : (
+                  <Ionicons
+                    name="camera-outline"
+                    size={s(24)}
+                    color={theme.colors.blue[500]}
+                  />
+                )}
                 <ImageUploader
                   isOpen={imageUploader}
                   onClose={() => setImageUploader(false)}
-                  onCaptured={() => {}}
+                  onCaptured={onChange('imageUrl')}
                 />
               </View>
             </Pressable>
 
             <Input
-              label="Image Text"
+              label="Image Attribution Text"
               value={form.imageAttr ?? ''}
               onChangeText={onChange('imageAttr')}
               placeholder="Image Text"
@@ -170,6 +306,7 @@ const AddStoryScreen = () => {
             />
 
             <Input
+              multiline
               label="Footer Text"
               value={form.footerText ?? ''}
               onChangeText={onChange('footerText')}
@@ -212,6 +349,7 @@ const useStyles = makeStyles(theme => ({
     padding: ms(10),
     backgroundColor: theme.colors.white,
     paddingTop: ms(20),
+    paddingBottom: s(200),
     flexGrow: 1,
     minHeight: height - s(40),
   },
@@ -243,9 +381,15 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: s(100),
+    height: s(200),
     borderWidth: theme.border.size.hairline,
     borderColor: theme.colors.blue[500],
     backgroundColor: theme.colors.blue[50],
+  },
+  headerImage: {
+    width: '100%',
+    height: s(200),
+    backgroundColor: theme.colors.blue[50],
+    borderRadius: theme.borderRadius.md,
   },
 }));

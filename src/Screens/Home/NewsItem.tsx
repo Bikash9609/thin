@@ -166,19 +166,6 @@ const NewsItem: React.FC<NewsItemProps> = ({
             ) : (
               <View />
             )}
-
-            {attributeKeyword && (
-              <View style={[styles.attribute, styles.infoAttr]}>
-                <Icon
-                  style={styles.attributeIcon}
-                  name="information-circle-outline"
-                  color={'#fff'}
-                />
-                <Text style={styles.attributeText} numberOfLines={1}>
-                  {attributeKeyword}
-                </Text>
-              </View>
-            )}
           </View>
 
           <View style={styles.content}>
@@ -188,6 +175,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
               onPress={handleOpenLink(link)}>
               {title}
             </Text>
+            {attributeKeyword && (
+              <Text style={styles.summary} numberOfLines={1}>
+                {attributeKeyword}
+              </Text>
+            )}
             <View style={styles.contentMetaInfo}>
               <TouchableOpacity
                 onPress={handleOpenLink(website)}
@@ -343,10 +335,17 @@ const useStyles = makeStyles(theme => ({
     paddingVertical: scale(10),
   },
   title: {
-    marginBottom: scale(5),
-    fontSize: scale(theme.fontSizes.base - 3),
+    marginBottom: scale(2),
+    fontSize: scale(theme.fontSizes.base - 2),
     color: theme.text.dark.black,
     ...theme.fontWeights.bold,
+  },
+  summary: {
+    marginBottom: scale(5),
+    fontSize: scale(theme.fontSizes.sm - 3),
+    color: theme.text.dark.dimGray,
+    textAlign: 'left',
+    ...theme.fontWeights.normal,
   },
   infoText: {
     fontSize: scale(16),
@@ -410,13 +409,6 @@ const useStyles = makeStyles(theme => ({
   },
   authorAttr: {
     fontSize: scale(10),
-  },
-
-  infoAttr: {
-    bottom: scale(10),
-    right: scale(10),
-    top: undefined,
-    left: undefined,
   },
 
   linearProgressContainer: { display: 'flex', alignItems: 'center' },

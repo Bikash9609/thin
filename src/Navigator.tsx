@@ -1,5 +1,8 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer, RouteProp } from '@react-navigation/native';
+import {
+  NativeStackNavigationProp,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import { PropsWithChildren } from 'react';
 import Home from './Screens/Home';
 import AddStoryScreen from './Screens/AddStory';
@@ -8,6 +11,8 @@ import { AppBarProvider } from './context/AppBarProvider';
 import ProfileScreen from './Screens/Profile';
 import IntroductionScreen from './Screens/Introduction/index';
 import AuthorSignupScreen from './Screens/AuthorSignup';
+import { useAuth } from './context/AuthProvider';
+import NewsItemScreen from './Screens/NewsItem';
 
 const Stack =
   createNativeStackNavigator<
@@ -18,11 +23,18 @@ const Stack =
       | 'ProfileScreen'
       | 'IntroductionScreen'
       | 'AuthorSignupScreen'
+      | 'NewsItemScreen'
     >
   >();
 
+export interface PageProps<T extends keyof ScreensParamsList> {
+  // T is one of Home|PasswordAdd
+  navigation: NativeStackNavigationProp<ScreensParamsList, T>;
+  route: RouteProp<ScreensParamsList, T>;
+}
+
 function StackNavigator() {
-  const initialRouteName = 'AuthorSignupScreen';
+  const initialRouteName = 'ProfileScreen';
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
@@ -62,6 +74,13 @@ function StackNavigator() {
       <Stack.Screen
         name="AuthorSignupScreen"
         component={AuthorSignupScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="NewsItemScreen"
+        component={NewsItemScreen}
         options={{
           headerShown: false,
         }}
