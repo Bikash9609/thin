@@ -13,6 +13,7 @@ import IntroductionScreen from './Screens/Introduction/index';
 import AuthorSignupScreen from './Screens/AuthorSignup';
 import { useAuth } from './context/AuthProvider';
 import NewsItemScreen from './Screens/NewsItem';
+import GenericAppbar from './components/GenericAppbar';
 
 const Stack =
   createNativeStackNavigator<
@@ -34,7 +35,7 @@ export interface PageProps<T extends keyof ScreensParamsList> {
 }
 
 function StackNavigator() {
-  const initialRouteName = 'ProfileScreen';
+  const initialRouteName = 'Home';
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
@@ -82,7 +83,17 @@ function StackNavigator() {
         name="NewsItemScreen"
         component={NewsItemScreen}
         options={{
-          headerShown: false,
+          headerBackVisible: true,
+          headerShown: true,
+          header: ({ navigation: { canGoBack, goBack, navigate } }) => (
+            <GenericAppbar
+              height="sm"
+              title="Dashboard"
+              onBackPress={() =>
+                canGoBack() ? goBack() : navigate('ProfileScreen')
+              }
+            />
+          ),
         }}
       />
     </Stack.Navigator>

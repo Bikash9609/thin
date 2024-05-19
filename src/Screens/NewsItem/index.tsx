@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import useRequest from '../../hooks/useRequest';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import NewsItem from '../Home/NewsItem';
 import { PostResponse } from '../Home';
 import { PageProps } from '../../Navigator';
+import LottieView from 'lottie-react-native';
+import { s } from 'react-native-size-matters';
+import { LinearProgress } from '@rneui/themed';
+import LinearProgressGeneric from '../../components/LinearProgress';
 
-function NewsItemScreen({ route }: PageProps<'NewsItemScreen'>) {
+function NewsItemScreen({ route, navigation }: PageProps<'NewsItemScreen'>) {
   const {
     data: item,
     isLoading,
@@ -16,7 +20,20 @@ function NewsItemScreen({ route }: PageProps<'NewsItemScreen'>) {
     url: `/post/${route.params.uuid}`,
   });
 
-  if (isLoading || !item) return <FullScreenLoader />;
+  if (isLoading || !item)
+    return (
+      <>
+        <LinearProgressGeneric />
+        <View style={styles.centeredContent}>
+          <LottieView
+            source={require('../../assets/lottie/2.json')} // Use require for local assets
+            autoPlay={true}
+            loop={true}
+            style={styles.lottieView} // Avoid full screen stretching
+          />
+        </View>
+      </>
+    );
 
   return (
     <View style={styles.container}>
@@ -44,6 +61,17 @@ function NewsItemScreen({ route }: PageProps<'NewsItemScreen'>) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+
+  centeredContent: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    height: '100%',
+  },
+  lottieView: {
+    // Adjust width and height as needed, avoid full-screen stretching
+    width: s(350), // Example width, adjust based on your Lottie animation size
+    height: s(300), // Example height, adjust based on your Lottie animation size
   },
 });
 

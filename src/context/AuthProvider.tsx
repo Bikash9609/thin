@@ -1,11 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import React, {
   PropsWithChildren,
   createContext,
   useCallback,
   useContext,
   useState,
-  SetStateAction,
 } from 'react';
+import { Alert } from 'react-native';
 
 // Define the shape of the user object
 export interface UserStored {
@@ -18,7 +21,7 @@ export interface UserStored {
 interface AuthContextType {
   user: UserStored | null;
   login: (userData: UserStored) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: () => boolean;
   getUserInfo: () => User | undefined;
   setData: (x: UserStored) => any;
@@ -28,7 +31,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   login: () => {},
-  logout: () => {},
+  logout: (() => {}) as unknown as any,
   isAuthenticated: () => false,
   getUserInfo: () => undefined,
   setData: () => undefined,
@@ -47,8 +50,18 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   };
 
   // Function to handle user logout
-  const logout = () => {
-    setData(null);
+  const logout = async () => {
+    try {
+      await GoogleSignin.signOut();
+      await AsyncStorage.clear();
+      await setData(null);
+      setData(null);
+    } catch (error) {
+      Alert.alert(
+        'Error logging out!',
+        'Please try again. If the issue persists, try uninstalling and reinstalling the app.',
+      );
+    }
   };
 
   const isAuthenticated = useCallback(() => !!(data && data.token), [data]);

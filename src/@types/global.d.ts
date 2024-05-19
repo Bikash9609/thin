@@ -8,6 +8,13 @@ type ScreensParamsList = {
   NewsItemScreen: { uuid: string };
 };
 
+type Author = {
+  uuid: string;
+  name: string;
+  website: string;
+  avatarUrl: string;
+};
+
 type User = {
   id: number;
   uuid: string;
@@ -18,4 +25,5 @@ type User = {
   authorId: number;
   createdAt: Date;
   updatedAt: Date;
+  author: Author;
 };

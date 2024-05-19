@@ -14,6 +14,8 @@ import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import useRequest from '../../hooks/useRequest';
+import FullScreenLoader from '../../components/FullScreenLoader';
+import LottieView from 'lottie-react-native';
 
 type Item = {
   uuid: string;
@@ -91,12 +93,26 @@ const ProfileScreen: React.FC = () => {
         />
       ) : (
         <>
-          <Header onAddNewContent={() => navigate('AddStory')} />
-          <View style={styles.noItemsContainer}>
-            <Text style={styles.noItemsText}>
-              No posts found. Add some posts by creating new stories!
-            </Text>
-          </View>
+          <Header
+            onAddNewContent={() => navigate('AddStory')}
+            isLoading={ownPostsQuery.isLoading}
+          />
+          {ownPostsQuery.isLoading ? (
+            <View style={styles.centeredContent}>
+              <LottieView
+                source={require('../../assets/lottie/2.json')} // Use require for local assets
+                autoPlay={true}
+                loop={true}
+                style={styles.lottieView} // Avoid full screen stretching
+              />
+            </View>
+          ) : (
+            <View style={styles.noItemsContainer}>
+              <Text style={styles.noItemsText}>
+                No posts found. Add some posts by creating new stories!
+              </Text>
+            </View>
+          )}
         </>
       )}
 
@@ -189,6 +205,15 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.semiBold,
+  },
+
+  centeredContent: {
+    alignItems: 'center',
+  },
+  lottieView: {
+    // Adjust width and height as needed, avoid full-screen stretching
+    width: s(350), // Example width, adjust based on your Lottie animation size
+    height: s(300), // Example height, adjust based on your Lottie animation size
   },
 }));
 

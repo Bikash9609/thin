@@ -1,4 +1,4 @@
-import { makeStyles, useTheme } from '@rneui/themed';
+import { Avatar, makeStyles, useTheme } from '@rneui/themed';
 import React, { useEffect, useRef } from 'react';
 import {
   View,
@@ -35,6 +35,7 @@ const Header: React.FC<HeaderProps> = ({
   const styles = useStyles();
   const containerStyle = fixed ? styles.fixedContainer : styles.container;
   const shadowStyle = fixed ? styles.shadow : null;
+  const userInfo = getUserInfo();
 
   // Using useRef to keep a reference to the animated value
   const translateYAnim = useRef(new Animated.Value(0)).current;
@@ -75,9 +76,7 @@ const Header: React.FC<HeaderProps> = ({
           <TouchableOpacity
             style={styles.rightContainer}
             onPress={() => {
-              navigate(
-                getUserInfo()?.authorId ? 'AddStory' : 'AuthorSignupScreen',
-              );
+              navigate(userInfo?.authorId ? 'AddStory' : 'AuthorSignupScreen');
               toggleAppBarVisibility();
             }}>
             <Ionicons
@@ -97,11 +96,19 @@ const Header: React.FC<HeaderProps> = ({
               navigate('ProfileScreen');
               toggleAppBarVisibility();
             }}>
-            <Ionicons
-              name="person-circle-outline"
-              size={s(24)}
-              color={theme.text.dark.black}
-            />
+            {userInfo?.author?.avatarUrl ? (
+              <Avatar
+                source={{ uri: userInfo.author.avatarUrl }}
+                avatarStyle={styles.profileAvatar}
+                rounded
+              />
+            ) : (
+              <Ionicons
+                name="person-circle-outline"
+                size={s(32)}
+                color={theme.text.dark.black}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -128,8 +135,8 @@ const Header: React.FC<HeaderProps> = ({
 
 const useStyles = makeStyles(theme => ({
   appIcon: {
-    width: s(24), // Adjust the width as needed
-    height: s(24), // Adjust the height as needed
+    width: s(32), // Adjust the width as needed
+    height: s(32), // Adjust the height as needed
     marginRight: s(8), // Adjust the margin as needed
   },
   container: {
@@ -179,6 +186,7 @@ const useStyles = makeStyles(theme => ({
     height: s(30),
     marginLeft: s(5),
   },
+  profileAvatar: {},
   rightGroup: {
     display: 'flex',
     flexDirection: 'row',

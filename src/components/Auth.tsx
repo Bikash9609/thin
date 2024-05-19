@@ -19,6 +19,7 @@ import AuthLoading from './AuthLoading';
 import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
 import { useAuth } from '../context/AuthProvider';
+import useDelayedEffect from '../hooks/useDleayedEffect';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -28,7 +29,7 @@ const webClientId =
 
 const AuthScreen = ({ children }: PropsWithChildren) => {
   const styles = useStyles();
-  const { login, logout } = useAuth();
+  const { login, logout, isAuthenticated, user } = useAuth();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -83,11 +84,21 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     }
   };
 
-  useEffect(() => {
-    googleLogin();
-  }, []);
+  useDelayedEffect(
+    () => {
+      googleLogin();
+    },
+    5000,
+    [],
+  );
 
-  if (isSignedIn) {
+  useEffect(() => {
+    if (!user && !isLoading && isSignedIn && !isAuthenticated()) {
+      setIsSignedIn(false);
+    }
+  }, [user, isLoading, isSignedIn, isAuthenticated]);
+
+  if (isSignedIn && isAuthenticated()) {
     return children;
   }
 
