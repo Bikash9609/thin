@@ -16,11 +16,15 @@ const useMutation = <T>({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | undefined>();
 
-  const mutate = async (data?: RequestOptions['data']) => {
+  const mutate = async (
+    data?: RequestOptions['data'],
+    _options?: Partial<UseMutationOptions<T>>,
+  ) => {
     setIsLoading(true);
     try {
       const responseData = await request<T>({
         ...options,
+        ..._options,
         data: options?.data ?? data,
       });
       if (onSuccess) {

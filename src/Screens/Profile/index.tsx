@@ -6,8 +6,8 @@ import {
   Image,
   FlatList,
   Modal,
-  Button,
   Pressable,
+  Alert,
 } from 'react-native';
 import { s } from 'react-native-size-matters';
 import Header from './Header';
@@ -16,6 +16,9 @@ import { useNavigation } from '@react-navigation/native';
 import useRequest from '../../hooks/useRequest';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import LottieView from 'lottie-react-native';
+import Button from '../../components/UI';
+import useMutation from '../../hooks/useMutation';
+import LinearProgressGeneric from '../../components/LinearProgress';
 
 type Item = {
   uuid: string;
@@ -35,6 +38,19 @@ const ProfileScreen: React.FC = () => {
   const ownPostsQuery = useRequest<Item[]>({
     method: 'get',
     url: '/posts/own',
+  });
+
+  const { mutate, isLoading } = useMutation({
+    method: 'delete',
+    url: `/post/${selectedItem?.uuid}`,
+    onSuccess(data) {
+      const updatedItems = ownPostsQuery.data!.filter(
+        i => i.uuid !== selectedItem?.uuid,
+      );
+      ownPostsQuery.setData(updatedItems);
+      setSelectedItem(null);
+      setIsModalVisible(false);
+    },
   });
 
   const renderItem = ({ item }: { item: Item }) => (
@@ -65,13 +81,12 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleConfirmDelete = () => {
-    if (selectedItem) {
-      const updatedItems = ownPostsQuery.data!.filter(
-        i => i.uuid !== selectedItem.uuid,
-      );
-      ownPostsQuery.setData(updatedItems);
-      setIsModalVisible(false);
-      setSelectedItem(null);
+    try {
+      if (selectedItem) {
+        mutate(undefined, { url: `/post/${selectedItem.uuid}` });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Error deleting item. Pleaes try again.');
     }
   };
 
@@ -122,14 +137,24 @@ const ProfileScreen: React.FC = () => {
             <Text style={styles.modalText}>
               Are you sure you want to delete this item?
             </Text>
-            <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={handleCancelDelete} />
-              <Button
-                title="Delete"
-                onPress={handleConfirmDelete}
-                color="red"
-              />
-            </View>
+            {isLoading ? (
+              <LinearProgressGeneric />
+            ) : (
+              <View style={styles.modalButtons}>
+                <Button
+                  disabled={isLoading}
+                  title="Delete"
+                  onPress={handleConfirmDelete}
+                  style={styles.modalButtonDelete}
+                />
+                <Button
+                  disabled={isLoading}
+                  title="Cancel"
+                  onPress={handleCancelDelete}
+                  style={styles.modalButtonCancel}
+                />
+              </View>
+            )}
           </View>
         </View>
       </Modal>
@@ -181,18 +206,30 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
+    width: '90%',
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
     elevation: 5,
   },
   modalText: {
-    fontSize: 18,
     marginBottom: 20,
+    fontSize: s(theme.fontSizes.base),
+    color: theme.text.dark.black,
+    ...theme.fontWeights.semiBold,
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-end',
+  },
+  modalButtonDelete: {
+    backgroundColor: theme.colors.red[700],
+    width: s(100),
+  },
+  modalButtonCancel: {
+    backgroundColor: theme.colors.blue[600],
+    width: s(100),
+    marginLeft: s(10),
   },
 
   noItemsContainer: {

@@ -1,4 +1,9 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   View,
   Dimensions,
@@ -33,15 +38,15 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  useEffect(() => {
-    configureGoogleSignIn();
-  }, []);
-
   const configureGoogleSignIn = async () => {
     await GoogleSignin.configure({
       webClientId: webClientId,
     });
   };
+
+  useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
 
   const fetchUserLoginToken = async (idToken: string) => {
     try {
@@ -63,7 +68,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const googleLogin = async () => {
+  const googleLogin = useCallback(async () => {
     try {
       setIsLoading(true);
       setIsSignedIn(await GoogleSignin.isSignedIn());
@@ -72,7 +77,6 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Fetch user token from Firebase
       if (!userInfo?.idToken) throw new Error('Error logging in');
       const res = await fetchUserLoginToken(userInfo.idToken);
-      console.log(res);
       login(res);
     } catch (error: any) {
       logout();
@@ -82,15 +86,41 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [login, logout]);
 
-  useDelayedEffect(
-    () => {
-      googleLogin();
-    },
-    5000,
-    [],
-  );
+  const googleLoginSilent = useCallback(async () => {
+    try {
+      const userInfo = await GoogleSignin.signIn();
+      if (!userInfo?.idToken) throw new Error('Error logging in');
+      const res = await fetchUserLoginToken(userInfo.idToken);
+      login(res);
+    } catch (error: any) {
+      logout();
+      setIsSignedIn(false);
+      Alert.alert('Error', 'Error authenticating with Google silently');
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [login, logout]);
+
+  const fetchUserExistence = useCallback(async () => {
+    const session = await AsyncStorageUtils.getItem(config.tokenStorageKey);
+    if (session) {
+      setIsLoading(true);
+      login(session);
+      setIsSignedIn(true);
+      googleLoginSilent();
+    } else {
+      setTimeout(() => {
+        googleLogin();
+      }, 6000);
+    }
+  }, [googleLogin, googleLoginSilent, login]);
+
+  useEffect(() => {
+    fetchUserExistence();
+  }, []);
 
   useEffect(() => {
     if (!user && !isLoading && isSignedIn && !isAuthenticated()) {

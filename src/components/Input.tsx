@@ -65,6 +65,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: 0,
     padding: s(10),
     fontSize: s(theme.fontSizes.base),
+    color: theme.text.dark.black,
   },
 }));
 

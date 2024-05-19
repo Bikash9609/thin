@@ -6,9 +6,13 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { Alert } from 'react-native';
+import AsyncStorageUtils from '../helpers/asyncStorage';
+import config from '../config/config';
+import useHideSplashScreen from '../hooks/useHideSplashScreen';
 
 // Define the shape of the user object
 export interface UserStored {
