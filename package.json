@@ -21,6 +21,7 @@
     "@rneui/base": "^4.0.0-rc.8",
     "@rneui/themed": "^4.0.0-rc.8",
     "axios": "^1.6.7",
+    "formik": "^2.4.6",
     "lottie-react-native": "^6.6.0",
     "moment": "^2.30.1",
     "react": "18.2.0",
@@ -33,10 +34,12 @@
     "react-native-screens": "^3.29.0",
     "react-native-share": "^10.0.2",
     "react-native-size-matters": "^0.4.2",
+    "react-native-snackbar": "^2.6.2",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-vector-icons": "^10.0.3",
     "react-native-view-shot": "^3.8.0",
-    "sp-react-native-in-app-updates": "^1.4.0"
+    "sp-react-native-in-app-updates": "^1.4.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

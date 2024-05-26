@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onAddNewContent, isLoading }) => {
         <Pressable onPress={() => navigate('Home')}>
           <View style={styles.leftContent}>
             <Ionicons name="arrow-back" size={24} color="black" />
-            <Text style={styles.title}>Your Dashboard</Text>
+            <Text style={styles.title}>Dashboard</Text>
           </View>
         </Pressable>
         <View style={styles.rightContent}>
@@ -100,6 +100,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     marginLeft: 10,
+    color: theme.text.dark.black,
     fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.bold,
   },
@@ -132,6 +133,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
   },
   modalTitle: {
+    color: theme.text.dark.deepGray,
     fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.bold,
     marginBottom: s(10),
@@ -157,6 +159,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
   },
   closeButtonText: {
+    color: theme.text.dark.deepGray,
     fontSize: s(theme.fontSizes.base - 2),
     ...theme.fontWeights.bold,
   },

@@ -14,7 +14,7 @@ import {
   Divider,
   LinearProgress,
 } from '@rneui/themed';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ms, s } from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Input from '../../components/Input';
@@ -28,7 +28,57 @@ import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
 import { ImagePickerResponse } from 'react-native-image-picker';
 import useMutation from '../../hooks/useMutation';
-import CategorySelector, { Category } from '../../components/CategorySelector';
+import CategorySelector from '../../components/CategorySelector';
+import useScrollView from '../../hooks/useScrollView';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import Snackbar from 'react-native-snackbar';
+import LinearProgressGeneric from '../../components/LinearProgress';
+
+const validationSchema = [
+  Yup.object().shape({
+    categoryId: Yup.string().uuid().required('Category is required'),
+    title: Yup.string()
+      .min(3, 'Title must be at least 3 characters')
+      .max(60, 'Title must be at most 60 characters')
+      .required('Title is required'),
+    subtitle: Yup.string()
+      .min(3, 'Subtitle must be at least 3 characters')
+      .max(60, 'Subtitle must be at most 60 characters')
+      .required('Subtitle is required'),
+  }),
+  Yup.object().shape({
+    description: Yup.string()
+      .test(
+        'min-word-count',
+        'Description should be at least 100 words',
+        function (value) {
+          return getWordCount(value ?? '') >= 100;
+        },
+      )
+      .test(
+        'max-word-count',
+        'Description exceeds maximum word count',
+        function (value) {
+          return validateWordCount(value ?? '', 300);
+        },
+      )
+      .required('Description is required'),
+  }),
+  Yup.object().shape({
+    footerText: Yup.string().max(
+      60,
+      'Footer text must be at most 60 characters',
+    ),
+    imageAttr: Yup.string()
+      .max(30, 'Image attribute must be at most 30 characters')
+      .min(1, 'Image attribute is required'),
+    imageAttrUrl: Yup.string().url('Invalid URL').optional(),
+    imageUrl: Yup.string()
+      .required('Image is required')
+      .min(3, 'Image URL must be at least 3 characters'),
+  }),
+];
 
 type Form = {
   title?: string;
@@ -40,27 +90,46 @@ type Form = {
   imageAttrUrl?: string;
 };
 
-const stepWiseValidations = {
-  step1: ['title', 'subtitle', 'categoryId'],
-  step2: ['description'],
-  step3: ['footerText', 'imageAttr', 'imageUrl'],
-};
-
 const { height } = Dimensions.get('screen');
 
 const AddStoryScreen = () => {
   const { navigate } = useNavigation() as any;
   const styles = useStyles();
   const { theme } = useTheme();
-
-  const [form, setForm] = useState<Form>({});
+  const { getScrollViewRef, scrollToTop } = useScrollView();
 
   const [activeStep, setActiveStep] = useState(1);
   const [imageUploader, setImageUploader] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
+  const [data, setData] = useState<Record<string, any>>({
+    title: '',
+    subtitle: '',
+    description: '',
+    footerText: '',
+    imageAttr: '',
+    imageAttrUrl: '',
+    imageUrl: '',
+    categoryId: '',
+  });
+
+  const {
+    values,
+    handleChange,
+    setValues,
+    handleBlur,
+    errors,
+    isValid,
+    validateForm,
+    resetForm,
+  } = useFormik({
+    onSubmit: values => {
+      handleStepChange();
+    },
+    validateOnChange: true,
+    initialValues: data,
+    validationSchema: validationSchema[activeStep - 1],
+    validateOnBlur: true,
+  });
 
   const { mutate, isLoading } = useMutation({
     method: 'put',
@@ -77,19 +146,15 @@ const AddStoryScreen = () => {
 
   const handleSave = async () => {
     try {
-      const data = { ...form, categoryId: selectedCategory!.uuid };
-      // Implement your logic to save the data here
-      console.log('Saving post...', {
-        ...form,
-        categoryId: selectedCategory!.uuid,
-        imageUrl,
-      });
+      const data = { ...values, title: toTitleCase(values.title) };
       const formData = new FormData();
-      Object.keys(data).forEach(item =>
-        formData.append(item, (data as any)[item] as string),
-      );
+      Object.keys(data).forEach(item => {
+        if (item === 'imageUrl') return;
+
+        formData.append(item, (data as any)[item] as string);
+      });
       formData.append('file', {
-        uri: imageUrl,
+        uri: values.imageUrl,
         name: 'thumbnail.jpg',
         type: 'image/jpeg', // Adjust the type according to your file type
       });
@@ -99,102 +164,60 @@ const AddStoryScreen = () => {
     }
   };
 
-  const onChangeValidations = (type: string, value: string) => {
-    const updatedValue = value;
-    if (type === 'title') {
-      return toTitleCase(value.substring(0, 60));
-    }
-    if (type === 'subtitle') {
-      return value.substring(0, 60);
-    }
-    if (type === 'description') {
-      return validateWordCount(value, 500) ? value : value.substring(0, 500);
-    }
-    if (type === 'footerText') {
-      return value.substring(0, 60);
-    }
-    if (type === 'imageAttr') {
-      return value.substring(0, 30);
-    }
-    return updatedValue;
-  };
-
-  const onSaveValidator = (type: string) => {
-    const value = {
-      ...form,
-      categoryId: selectedCategory?.uuid,
-      imageUrl,
-    }[type];
-
-    if (type === 'categoryId') return !!selectedCategory?.uuid;
-    if (type === 'imageUrl') return !!imageUrl;
-
-    if (value === undefined || value === null || value.trim() === '') {
-      return false;
-    }
-
-    if (
-      type === 'title' ||
-      type === 'subtitle' ||
-      type === 'footerText' ||
-      type === 'imageAttr'
-    ) {
-      const maxLength = type === 'imageAttr' ? 30 : 60;
-      return value.length >= 3 && value.length <= maxLength;
-    }
-
-    if (type === 'description') {
-      return getWordCount(value) > 100 && validateWordCount(value, 500);
-    }
-
-    return true;
-  };
-
-  const validateStepData = (stepTypes: string[]) => {
-    for (const type of stepTypes) {
-      const value = {
-        ...(form[type as keyof Form] as any),
-        categoryId: selectedCategory?.uuid,
-        imageUrl,
-      };
-
-      if (value === undefined || value === null || !onSaveValidator(type)) {
-        return false;
+  const handleStepChange = async (back?: boolean) => {
+    if (back) {
+      if (activeStep > 1) {
+        setActiveStep(step => step - 1);
       }
-      console.log(type);
-    }
-    return true;
-  };
-
-  const handleStepChange = (back?: boolean) => {
-    if (back && activeStep <= 1) return;
-
-    if (
-      !back &&
-      !validateStepData(
-        stepWiseValidations[
-          `step${activeStep}` as keyof typeof stepWiseValidations
-        ],
-      )
-    )
       return;
+    }
 
-    if (activeStep > 2) return handleSave();
+    if (!isValid) {
+      Snackbar.show({
+        text: 'Please fix the form errors to continue. Highlighted in red color.',
+        duration: Snackbar.LENGTH_SHORT,
+      });
+      return;
+    }
 
-    setActiveStep(step => (back ? step - 1 : step + 1));
+    if (activeStep > 2) {
+      return handleSave();
+    }
+
+    setData(prev => ({ ...prev, ...values }));
+    scrollToTop();
+    setActiveStep(step => step + 1);
+    setTimeout(() => {
+      validateForm();
+    }, 10);
   };
 
   const onChange = (type: string) => (value: string | ImagePickerResponse) => {
     if (type === 'imageUrl') {
       const imageUri = (value as ImagePickerResponse).assets?.[0]?.uri;
       setImageUploader(false);
+      setValues(prev => ({ ...prev, imageUrl: imageUri }) as any);
       return setImageUrl(imageUri ?? '');
     }
-    setForm(prev => ({
-      ...prev,
-      [type]: onChangeValidations(type, value as string),
-    }));
   };
+
+  const getErrorProps = useCallback(
+    (field: keyof typeof values) => {
+      return {
+        showError: !!errors[field],
+        errorMessage: errors[field] as string,
+      };
+    },
+    [errors],
+  );
+
+  useEffect(() => {
+    resetForm();
+  }, []);
+
+  useEffect(() => {
+    setValues(prev => ({ ...data, ...prev }));
+  }, [activeStep]);
 
   let progress = 0.33333;
   if (activeStep > 1) progress = 0.63333;
@@ -206,9 +229,12 @@ const AddStoryScreen = () => {
         onClose={() => navigate('ProfileScreen')}
         handleStepChange={() => handleStepChange(false)}
         activeStep={activeStep}
+        disabled={isLoading}
       />
+      {isLoading && <LinearProgressGeneric />}
 
       <ScrollView
+        ref={getScrollViewRef()}
         contentContainerStyle={styles.scrollViewContainer}
         showsVerticalScrollIndicator={false}>
         <Text
@@ -230,25 +256,31 @@ const AddStoryScreen = () => {
         {activeStep === 1 && (
           <>
             <CategorySelector
-              selectedCategory={selectedCategory}
-              onSelect={setSelectedCategory}
+              selectedCategory={values.categoryId ?? null}
+              onSelect={handleChange('categoryId')}
+              showError={!!errors.categoryId}
             />
             <Input
               multiline
-              value={form.title ?? ''}
-              onChangeText={onChange('title')}
+              value={values.title ?? ''}
+              onChangeText={handleChange('title')}
+              onBlur={handleBlur('title')}
               inputStyle={[styles.input, styles.title]}
               label="Title"
               placeholder="Enter a title for your story"
+              maxLength={60}
+              {...getErrorProps('title')}
             />
 
             <Input
               multiline
-              value={form.subtitle ?? ''}
-              onChangeText={onChange('subtitle')}
+              value={values.subtitle ?? ''}
+              onChangeText={handleChange('subtitle')}
+              onBlur={handleBlur('subtitle')}
               inputStyle={[styles.input, styles.subtitle]}
               label="Subtitle"
               placeholder="Enter a subtitle for your story"
+              {...getErrorProps('subtitle')}
             />
           </>
         )}
@@ -256,30 +288,53 @@ const AddStoryScreen = () => {
         {activeStep === 2 && (
           <Input
             multiline
-            value={form.description ?? ''}
-            onChangeText={onChange('description')}
+            value={values.description ?? ''}
+            onChangeText={handleChange('description')}
+            onBlur={handleBlur('description')}
             inputStyle={[styles.input, styles.description]}
             containerStyle={{ minHeight: s(200) }}
             label="Description"
             placeholder="Enter a description for your story"
+            {...getErrorProps('description')}
           />
         )}
 
         {activeStep === 3 && (
           <>
             <Pressable onPress={() => setImageUploader(true)}>
-              <View style={styles.imageUploadContainer}>
+              <View
+                style={[
+                  styles.imageUploadContainer,
+                  getErrorProps('imageUrl').showError
+                    ? styles.imageUploadContainerError
+                    : [],
+                ].flat()}>
                 {imageUrl ? (
                   <Image
                     source={{ uri: imageUrl }}
                     style={styles.headerImage}
                   />
                 ) : (
-                  <Ionicons
-                    name="camera-outline"
-                    size={s(24)}
-                    color={theme.colors.blue[500]}
-                  />
+                  <>
+                    <Text
+                      style={[
+                        styles.thumbnailUploadHeader,
+                        getErrorProps('imageUrl').showError
+                          ? styles.thumbnailUploadHeaderError
+                          : [],
+                      ].flat()}>
+                      Upload Thumbnail
+                    </Text>
+                    <Ionicons
+                      name="camera-outline"
+                      size={s(24)}
+                      color={
+                        getErrorProps('imageUrl').showError
+                          ? theme.colors.red[500]
+                          : theme.colors.blue[500]
+                      }
+                    />
+                  </>
                 )}
                 <ImageUploader
                   isOpen={imageUploader}
@@ -290,28 +345,34 @@ const AddStoryScreen = () => {
             </Pressable>
 
             <Input
-              label="Image Attribution Text"
-              value={form.imageAttr ?? ''}
-              onChangeText={onChange('imageAttr')}
-              placeholder="Image Text"
+              label="Image by"
+              value={values.imageAttr ?? ''}
+              onChangeText={handleChange('imageAttr')}
+              onBlur={handleBlur('imageAttr')}
+              placeholder="Image by ..."
               inputStyle={[styles.input]}
+              {...getErrorProps('imageAttr')}
             />
 
             <Input
               label="Image attribute link (optional)"
-              value={form.imageAttrUrl ?? ''}
-              onChangeText={onChange('imageAttrUrl')}
+              value={values.imageAttrUrl ?? ''}
+              onChangeText={handleChange('imageAttrUrl')}
+              onBlur={handleBlur('imageAttrUrl')}
               placeholder="Image Link (Optional)"
               inputStyle={[styles.input]}
+              {...getErrorProps('imageAttrUrl')}
             />
 
             <Input
               multiline
               label="Footer Text"
-              value={form.footerText ?? ''}
-              onChangeText={onChange('footerText')}
+              value={values.footerText ?? ''}
+              onChangeText={handleChange('footerText')}
+              onBlur={handleBlur('footerText')}
               placeholder="Footer Text"
               inputStyle={[styles.input]}
+              {...getErrorProps('footerText')}
             />
           </>
         )}
@@ -364,15 +425,14 @@ const useStyles = makeStyles(theme => ({
   input: {
     borderBottomWidth: 0,
     paddingLeft: 0,
-    fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.normal,
   },
   title: {
     paddingBottom: 0,
-    ...theme.fontWeights.bold,
   },
   subtitle: {},
   description: {},
+
   imageUploadContainer: {
     borderRadius: theme.borderRadius.md,
     marginTop: s(10),
@@ -385,6 +445,19 @@ const useStyles = makeStyles(theme => ({
     borderWidth: theme.border.size.hairline,
     borderColor: theme.colors.blue[500],
     backgroundColor: theme.colors.blue[50],
+  },
+  thumbnailUploadHeader: {
+    marginBottom: s(5),
+    color: theme.text.dark.black,
+    fontSize: s(theme.fontSizes.base),
+    ...theme.fontWeights.semiBold,
+  },
+  thumbnailUploadHeaderError: {
+    color: theme.colors.red[500],
+  },
+  imageUploadContainerError: {
+    borderColor: theme.colors.red[500],
+    backgroundColor: theme.colors.red[50],
   },
   headerImage: {
     width: '100%',

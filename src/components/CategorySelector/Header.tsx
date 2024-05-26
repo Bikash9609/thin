@@ -1,44 +1,25 @@
 import { makeStyles } from '@rneui/themed';
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import { s } from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface HeaderProps {
-  handleStepChange: () => void;
-  activeStep: number;
   onClose: () => void;
-  disabled?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  onClose,
-  handleStepChange,
-  activeStep,
-  disabled,
-}) => {
+const Header: React.FC<HeaderProps> = ({ onClose }) => {
   const styles = useStyles();
   return (
     <View style={styles.container}>
       <Pressable onPress={onClose}>
         <View style={styles.leftContent}>
           <Ionicons name="close-outline" size={s(24)} color="black" />
-          <Text style={styles.title}>Create Post</Text>
+          <Text style={styles.title}>Select category</Text>
         </View>
       </Pressable>
-      <TouchableOpacity
-        onPress={handleStepChange}
-        style={styles.addButton}
-        disabled={disabled}>
-        <Text style={styles.addButtonText}>
-          {activeStep > 2 ? 'Publish' : 'Next'}
-        </Text>
+      <TouchableOpacity onPress={onClose} style={styles.addButton}>
+        <Text style={styles.addButtonText}>Close</Text>
       </TouchableOpacity>
     </View>
   );
