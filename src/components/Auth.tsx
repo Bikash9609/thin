@@ -25,6 +25,7 @@ import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
 import { useAuth } from '../context/AuthProvider';
 import useDelayedEffect from '../hooks/useDleayedEffect';
+import Snackbar from 'react-native-snackbar';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -97,7 +98,9 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     } catch (error: any) {
       logout();
       setIsSignedIn(false);
-      Alert.alert('Error', 'Error authenticating with Google silently');
+      Snackbar.show({
+        text: 'Error logging in, please login manually to view account!',
+      });
       console.log(error);
     } finally {
       setIsLoading(false);

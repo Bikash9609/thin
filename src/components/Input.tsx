@@ -95,7 +95,7 @@ const useStyles = makeStyles(theme => ({
   },
   maxLength: {
     color: theme.text.dark.dimGray,
-    fontSize: s(theme.fontSizes.xs - 1),
+    fontSize: s(theme.fontSizes.xs - 3),
     ...theme.fontWeights.medium,
   },
   inputContainer: {

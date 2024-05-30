@@ -30,7 +30,8 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const { navigate } = useNavigation() as any;
   const { isAuthenticated, getUserInfo } = useAuth();
-  const { isAppBarVisible, toggleAppBarVisibility } = useAppBar();
+  const { isAppBarVisible, toggleAppBarVisibility, withoutBackdrop } =
+    useAppBar();
   const { theme } = useTheme();
   const styles = useStyles();
   const containerStyle = fixed ? styles.fixedContainer : styles.container;
@@ -112,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
           </TouchableOpacity>
         </View>
       </Animated.View>
-      {fixed && isAppBarVisible && (
+      {fixed && isAppBarVisible && !withoutBackdrop && (
         <Pressable
           onPress={toggleAppBarVisibility}
           onTouchMove={toggleAppBarVisibility}>

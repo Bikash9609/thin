@@ -4,16 +4,9 @@ import {
   Dimensions,
   Pressable,
   Text,
-  Alert,
   Image,
 } from 'react-native';
-import {
-  useTheme,
-  Button,
-  makeStyles,
-  Divider,
-  LinearProgress,
-} from '@rneui/themed';
+import { useTheme, makeStyles, LinearProgress } from '@rneui/themed';
 import { useCallback, useEffect, useState } from 'react';
 import { ms, s } from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -34,6 +27,7 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import Snackbar from 'react-native-snackbar';
 import LinearProgressGeneric from '../../components/LinearProgress';
+import { compressImage } from '../../utils';
 
 const validationSchema = [
   Yup.object().shape({
@@ -72,23 +66,15 @@ const validationSchema = [
     ),
     imageAttr: Yup.string()
       .max(30, 'Image attribute must be at most 30 characters')
-      .min(1, 'Image attribute is required'),
+      .min(1, 'Image attribute is required')
+      .optional(),
     imageAttrUrl: Yup.string().url('Invalid URL').optional(),
+    link: Yup.string().url('Invalid URL').optional(),
     imageUrl: Yup.string()
       .required('Image is required')
       .min(3, 'Image URL must be at least 3 characters'),
   }),
 ];
-
-type Form = {
-  title?: string;
-  subtitle?: string;
-  description?: string;
-  footerText?: string;
-  imageUrl?: string;
-  imageAttr?: string;
-  imageAttrUrl?: string;
-};
 
 const { height } = Dimensions.get('screen');
 
@@ -110,6 +96,7 @@ const AddStoryScreen = () => {
     imageAttrUrl: '',
     imageUrl: '',
     categoryId: '',
+    link: '',
   });
 
   const {
@@ -151,15 +138,26 @@ const AddStoryScreen = () => {
       Object.keys(data).forEach(item => {
         if (item === 'imageUrl') return;
 
-        formData.append(item, (data as any)[item] as string);
+        const val = (data as any)[item] as string;
+        if (val === null || val === undefined || !val?.trim()) return;
+
+        formData.append(item, val);
       });
       formData.append('file', {
-        uri: values.imageUrl,
+        uri: await compressImage(values.imageUrl),
         name: 'thumbnail.jpg',
         type: 'image/jpeg', // Adjust the type according to your file type
       });
       await mutate(formData);
+      resetForm();
+      setActiveStep(1);
     } catch (error) {
+      Snackbar.show({
+        text:
+          (errors?.message as string) ??
+          'Error publishing story. Please try again!',
+        duration: Snackbar.LENGTH_LONG,
+      });
       console.log(error);
     }
   };
@@ -212,6 +210,7 @@ const AddStoryScreen = () => {
   );
 
   useEffect(() => {
+    setActiveStep(1);
     resetForm();
   }, []);
 
@@ -345,11 +344,32 @@ const AddStoryScreen = () => {
             </Pressable>
 
             <Input
-              label="Image by"
+              multiline
+              label="Footer Text"
+              value={values.footerText ?? ''}
+              onChangeText={handleChange('footerText')}
+              onBlur={handleBlur('footerText')}
+              placeholder="Footer Text"
+              inputStyle={[styles.input]}
+              {...getErrorProps('footerText')}
+            />
+
+            <Input
+              label="Source URL (optional)"
+              value={values.link ?? ''}
+              onChangeText={handleChange('link')}
+              onBlur={handleBlur('link')}
+              placeholder="Source URL (Optional)"
+              inputStyle={[styles.input]}
+              {...getErrorProps('link')}
+            />
+
+            <Input
+              label="Image by (Optional)"
               value={values.imageAttr ?? ''}
               onChangeText={handleChange('imageAttr')}
               onBlur={handleBlur('imageAttr')}
-              placeholder="Image by ..."
+              placeholder="Image by ... (Optional)"
               inputStyle={[styles.input]}
               {...getErrorProps('imageAttr')}
             />
@@ -362,17 +382,6 @@ const AddStoryScreen = () => {
               placeholder="Image Link (Optional)"
               inputStyle={[styles.input]}
               {...getErrorProps('imageAttrUrl')}
-            />
-
-            <Input
-              multiline
-              label="Footer Text"
-              value={values.footerText ?? ''}
-              onChangeText={handleChange('footerText')}
-              onBlur={handleBlur('footerText')}
-              placeholder="Footer Text"
-              inputStyle={[styles.input]}
-              {...getErrorProps('footerText')}
             />
           </>
         )}

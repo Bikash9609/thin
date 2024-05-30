@@ -19,18 +19,34 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState<any | null>(null);
 
+  const addLoadingScreen = useCallback((remove?: boolean) => {
+    if (remove) {
+      setData(prevData =>
+        prevData.filter(item => !(item as any).loadingScreen),
+      );
+      return;
+    }
+    setData(prevData => [...prevData, { loadingScreen: true } as any]);
+  }, []);
+
   const fetchDataAndAppend = useCallback(async () => {
     setLoading(true);
     let tries = 0;
     let delay = 1000; // Initial delay in milliseconds
+
+    // Add placeholder loading screen
+    addLoadingScreen();
 
     while (tries < 3) {
       try {
         const response = await fetchData(page);
         setHasMore(!!response?.length);
         setData(prevData =>
-          uniqBy([...prevData, ...response], (item: any) => item.uuid),
+          !response?.length
+            ? [...prevData, { noItemScreen: true } as any]
+            : uniqBy([...prevData, ...response], (item: any) => item.uuid),
         );
+        addLoadingScreen(true);
         setLoading(false);
         return; // If successful, exit the function
       } catch (error) {
@@ -41,6 +57,9 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
         delay *= 2; // Double the delay for the next attempt
       }
     }
+
+    // Remove placeholder loading screen
+    addLoadingScreen(true);
 
     // If unsuccessful after three attempts, set loading to false
     setLoading(false);

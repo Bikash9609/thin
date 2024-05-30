@@ -5,6 +5,9 @@ import NewsItem from './NewsItem';
 import useInfiniteQuery from '../../hooks/useInfiniteQuery';
 import { request } from '../../axios';
 import AuthLoading from '../../components/AuthLoading';
+import EndOfPosts from '../../components/EndOfPosts';
+import LoadingOfPosts from '../../components/LoadingOfPosts';
+import useCarouselGuide from './useCarouselGuide';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -56,11 +59,15 @@ const Navigator = () => {
   const [viewedPosts, setViewedPosts] = useState<string[]>([]);
   const [data, { fetchMore, loading, refreshData, hasMore }] =
     useInfiniteQuery(fetchPosts);
+  const { carouselRef, onScroll } = useCarouselGuide({
+    enabled: !!(!loading && data.length),
+  });
 
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
+      onScroll();
       const item = data[slideIndex];
-      if (item && !viewedPosts.includes(item.uuid)) {
+      if (item && item.uuid && !viewedPosts.includes(item.uuid)) {
         updatePostViewed(item);
         setViewedPosts(prev => [...prev, item.uuid]);
       }
@@ -74,8 +81,17 @@ const Navigator = () => {
     }
   }, [data]);
 
-  const renderNewsItem = useCallback(
-    ({ item }: { item: PostResponse }) => (
+  const renderNewsItem = useCallback(({ item }: { item: PostResponse }) => {
+    if (!item.uuid) {
+      if ((item as any).noItemScreen) {
+        return <EndOfPosts refreshData={refreshData} />;
+      }
+      if ((item as any).loadingScreen) {
+        return <LoadingOfPosts />;
+      }
+    }
+
+    return (
       <NewsItem
         uuid={item.uuid}
         author={item.author_name}
@@ -93,18 +109,21 @@ const Navigator = () => {
         viewerReaction={(item.viewer_reaction as any) ?? undefined}
         refreshData={refreshData}
       />
-    ),
-    [],
-  );
+    );
+  }, []);
 
   if (loading && !data.length) return <AuthLoading />;
 
   return (
     <View style={styles.container}>
       <Carousel
+        ref={carouselRef}
         data={data}
         renderItem={renderNewsItem}
-        keyExtractor={item => item.uuid}
+        keyExtractor={item => {
+          if (!(item as any).uuid) return Object.keys(item)[0];
+          return item.uuid;
+        }}
         sliderWidth={SCREEN_WIDTH} // Set sliderWidth instead of sliderHeight for horizontal scrolling
         itemWidth={SCREEN_WIDTH} // Set itemWidth instead of itemHeight for horizontal scrolling
         vertical={false} // Set vertical to false for horizontal scrolling
@@ -114,11 +133,6 @@ const Navigator = () => {
         onEndReachedThreshold={0.4}
         onSnapToItem={handleItemViewed}
         activeSlideOffset={0}
-        ListFooterComponent={
-          <View>
-            <ActivityIndicator size={'large'} />
-          </View>
-        }
       />
     </View>
   );

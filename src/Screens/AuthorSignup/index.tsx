@@ -14,6 +14,8 @@ import { ImagePickerResponse } from 'react-native-image-picker';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { useNavigation } from '@react-navigation/native';
 import { UserStored, useAuth } from '../../context/AuthProvider';
+import { compressImage } from '../../utils';
+import Snackbar from 'react-native-snackbar';
 
 const AuthorSignupScreen = () => {
   const { setData: setAuthData } = useAuth();
@@ -55,16 +57,22 @@ const AuthorSignupScreen = () => {
     await Linking.openURL(link);
   };
 
-  const handleCreateProfile = () => {
+  const handleCreateProfile = async () => {
     const formData = new FormData();
     formData.append('name', data.name);
     formData.append('file', {
-      uri: selectedImage,
+      uri: await compressImage(selectedImage as string, 0.7),
       name: 'profile_pic.jpg',
       type: 'image/jpeg', // Adjust the type according to your file type
     });
     if (data.website) formData.append('website', data.website);
-    mutate(formData).catch(error => console.log(error));
+    mutate(formData).catch(error => {
+      Snackbar.show({
+        text:
+          (error?.message as string) ?? 'Error saving info. Please try again!',
+        duration: Snackbar.LENGTH_LONG,
+      });
+    });
   };
 
   const handleImagePickerToggle = () => {

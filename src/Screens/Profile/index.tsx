@@ -1,5 +1,5 @@
 import { makeStyles } from '@rneui/themed';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,12 @@ import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import useRequest from '../../hooks/useRequest';
-import FullScreenLoader from '../../components/FullScreenLoader';
 import LottieView from 'lottie-react-native';
 import Button from '../../components/UI';
 import useMutation from '../../hooks/useMutation';
 import LinearProgressGeneric from '../../components/LinearProgress';
+import moment from 'moment';
+import { renderMetaText } from '../../utils';
 
 type Item = {
   uuid: string;
@@ -63,13 +64,19 @@ const ProfileScreen: React.FC = () => {
             {item.infoText}
           </Text>
 
-          <Ionicons
-            onPress={() => handleDeleteItem(item)}
-            name="trash-outline"
-            size={20}
-            color="black"
-            style={styles.deleteButtonIcon}
-          />
+          <View style={styles.contentFooterBar}>
+            <Text
+              style={
+                styles.lastPublished
+              }>{`Published ${renderMetaText(item.datePublished as unknown as string)}`}</Text>
+            <Ionicons
+              onPress={() => handleDeleteItem(item)}
+              name="trash-outline"
+              size={s(18)}
+              color="black"
+              style={styles.deleteButtonIcon}
+            />
+          </View>
         </View>
       </View>
     </Pressable>
@@ -99,9 +106,11 @@ const ProfileScreen: React.FC = () => {
     <View style={styles.container}>
       {ownPostsQuery.data && ownPostsQuery.data.length > 0 ? (
         <FlatList
+          showsVerticalScrollIndicator={false}
           data={ownPostsQuery.data}
           renderItem={renderItem}
           keyExtractor={item => item.uuid.toString()}
+          stickyHeaderIndices={[0]}
           ListHeaderComponent={() => (
             <Header onAddNewContent={() => navigate('AddStory')} />
           )}
@@ -166,6 +175,7 @@ const useStyles = makeStyles(theme => ({
   container: {
     flex: 1,
     padding: s(10),
+    paddingBottom: 0,
     backgroundColor: theme.colors.white,
   },
   itemContainer: {
@@ -194,6 +204,17 @@ const useStyles = makeStyles(theme => ({
     color: theme.text.dark.deepGray,
     marginBottom: s(3),
     ...theme.fontWeights.normal,
+  },
+  contentFooterBar: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  lastPublished: {
+    fontSize: s(theme.fontSizes.xs - 3),
+    color: theme.text.dark.dimGray,
+    ...theme.fontWeights.medium,
   },
   deleteButtonIcon: {
     color: theme.colors.dark[400],

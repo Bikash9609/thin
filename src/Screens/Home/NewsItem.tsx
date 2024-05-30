@@ -383,8 +383,11 @@ const useStyles = makeStyles(theme => ({
   },
   imageContainer: {
     position: 'relative',
+    borderBottomWidth: theme.border.size.hairline,
+    borderBottomColor: theme.border.color.midGray,
+    borderBottomLeftRadius: scale(16),
+    borderBottomRightRadius: scale(16),
   },
-
   attributeIcon: {
     marginRight: scale(5),
   },
