@@ -1,4 +1,4 @@
-import { NavigationContainer, RouteProp } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
 import {
   NativeStackNavigationProp,
   createNativeStackNavigator,
@@ -7,7 +7,7 @@ import { PropsWithChildren } from 'react';
 import Home from './Screens/Home';
 import AddStoryScreen from './Screens/AddStory';
 import Header from './components/Header';
-import { AppBarProvider } from './context/AppBarProvider';
+import { AppBarProvider, useAppBar } from './context/AppBarProvider';
 import ProfileScreen from './Screens/Profile';
 import IntroductionScreen from './Screens/Introduction/index';
 import AuthorSignupScreen from './Screens/AuthorSignup';
@@ -35,6 +35,7 @@ export interface PageProps<T extends keyof ScreensParamsList> {
 }
 
 function StackNavigator() {
+  const appBarProps = useAppBar();
   const initialRouteName = 'Home';
 
   return (
@@ -44,13 +45,7 @@ function StackNavigator() {
         component={Home}
         options={{
           headerShown: true,
-          header: () => (
-            <Header
-              fixed
-              rightButtonIconName="add-circle-outline"
-              rightButtonText="Add"
-            />
-          ),
+          header: () => <Header fixed {...appBarProps} />,
         }}
       />
       <Stack.Screen

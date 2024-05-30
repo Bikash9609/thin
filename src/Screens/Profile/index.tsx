@@ -8,6 +8,7 @@ import {
   Modal,
   Pressable,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { s } from 'react-native-size-matters';
 import Header from './Header';
@@ -102,6 +103,11 @@ const ProfileScreen: React.FC = () => {
     setSelectedItem(null);
   };
 
+  const handleRefresh = () => {
+    ownPostsQuery.setData([]);
+    ownPostsQuery.retry();
+  };
+
   return (
     <View style={styles.container}>
       {ownPostsQuery.data && ownPostsQuery.data.length > 0 ? (
@@ -114,6 +120,12 @@ const ProfileScreen: React.FC = () => {
           ListHeaderComponent={() => (
             <Header onAddNewContent={() => navigate('AddStory')} />
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={!!ownPostsQuery.isLoading}
+              onRefresh={handleRefresh}
+            />
+          }
         />
       ) : (
         <>

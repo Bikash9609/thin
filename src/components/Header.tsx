@@ -18,20 +18,20 @@ import { useNavigation } from '@react-navigation/native';
 const { height } = Dimensions.get('window');
 
 interface HeaderProps {
-  rightButtonIconName?: string;
-  rightButtonText?: string;
   fixed?: boolean;
+  isAppBarVisible: boolean;
+  toggleAppBarVisibility: () => void;
+  withoutBackdrop?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
-  rightButtonIconName,
-  rightButtonText,
   fixed = false,
+  isAppBarVisible,
+  toggleAppBarVisibility,
+  withoutBackdrop = false,
 }) => {
   const { navigate } = useNavigation() as any;
   const { isAuthenticated, getUserInfo } = useAuth();
-  const { isAppBarVisible, toggleAppBarVisibility, withoutBackdrop } =
-    useAppBar();
   const { theme } = useTheme();
   const styles = useStyles();
   const containerStyle = fixed ? styles.fixedContainer : styles.container;
@@ -73,23 +73,21 @@ const Header: React.FC<HeaderProps> = ({
         ]}>
         <Image source={require('../assets/icon.png')} style={styles.appIcon} />
 
-        {rightButtonIconName && (
-          <TouchableOpacity
-            style={styles.rightContainer}
-            onPress={() => {
-              navigate(userInfo?.authorId ? 'AddStory' : 'AuthorSignupScreen');
-              toggleAppBarVisibility();
-            }}>
-            <Ionicons
-              name={rightButtonIconName}
-              size={s(18)}
-              color={theme.colors.white}
-            />
-            {rightButtonText && (
-              <Text style={styles.rightText}>{rightButtonText}</Text>
-            )}
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.rightContainer}
+          onPress={() => {
+            navigate(userInfo?.authorId ? 'AddStory' : 'AuthorSignupScreen');
+            toggleAppBarVisibility();
+          }}>
+          <Ionicons
+            name="add-circle-outline"
+            size={s(18)}
+            color={theme.colors.white}
+          />
+
+          <Text style={styles.rightText}>Add</Text>
+        </TouchableOpacity>
+
         <View style={styles.rightGroup}>
           <TouchableOpacity
             style={styles.personIconContainer}

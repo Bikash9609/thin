@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import NewsItem from './NewsItem';
 import useInfiniteQuery from '../../hooks/useInfiniteQuery';
@@ -8,6 +8,8 @@ import AuthLoading from '../../components/AuthLoading';
 import EndOfPosts from '../../components/EndOfPosts';
 import LoadingOfPosts from '../../components/LoadingOfPosts';
 import useCarouselGuide from './useCarouselGuide';
+import useCarouselPrefetcher from './useCarousel';
+import { useAppBar } from '../../context/AppBarProvider';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -59,14 +61,24 @@ const Navigator = () => {
   const [viewedPosts, setViewedPosts] = useState<string[]>([]);
   const [data, { fetchMore, loading, refreshData, hasMore }] =
     useInfiniteQuery(fetchPosts);
+
   const { carouselRef, onScroll } = useCarouselGuide({
     enabled: !!(!loading && data.length),
+  });
+
+  useCarouselPrefetcher({
+    enabled: hasMore,
+    viewedItems: viewedPosts.length,
+    isLoading: loading,
+    totalItems: data.length ?? 0,
+    onPrefetch: fetchMore,
   });
 
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
       onScroll();
       const item = data[slideIndex];
+
       if (item && item.uuid && !viewedPosts.includes(item.uuid)) {
         updatePostViewed(item);
         setViewedPosts(prev => [...prev, item.uuid]);
@@ -130,7 +142,7 @@ const Navigator = () => {
         swipeThreshold={10}
         scrollEnabled
         onEndReached={fetchMore}
-        onEndReachedThreshold={0.4}
+        onEndReachedThreshold={0.5}
         onSnapToItem={handleItemViewed}
         activeSlideOffset={0}
       />

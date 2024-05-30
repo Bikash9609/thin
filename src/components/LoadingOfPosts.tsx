@@ -1,100 +1,75 @@
-import { Skeleton, makeStyles } from '@rneui/themed';
-import React, { useEffect } from 'react';
-import { Dimensions, StatusBar, View } from 'react-native';
-import { s, vs } from 'react-native-size-matters';
+import { makeStyles } from '@rneui/themed';
+import LottieView from 'lottie-react-native';
+import React from 'react';
+import { View, Text, ActivityIndicator, StatusBar } from 'react-native';
+import { s } from 'react-native-size-matters';
 import Header from './Header';
-import { useAppBar } from '../context/AppBarProvider';
 
-const { width, height } = Dimensions.get('window');
-
-function LoadingOfPosts() {
-  const { toggleAppBarVisibility, isAppBarVisible, setWithoutbackdrop } =
-    useAppBar();
+const LoadingOfPosts: React.FC = () => {
   const styles = useStyles();
 
-  useEffect(() => {
-    if (!isAppBarVisible) {
-      setWithoutbackdrop(true);
-      toggleAppBarVisibility();
-    }
-  }, [isAppBarVisible]);
-
   return (
-    <View style={styles.container}>
+    <View style={styles.main}>
       <StatusBar showHideTransition="slide" />
-      <View>
-        <Skeleton
-          animation="wave"
-          width={width}
-          height={s(200)}
-          style={styles.image}
-        />
+      <Header
+        isAppBarVisible
+        toggleAppBarVisibility={() => {}}
+        withoutBackdrop
+      />
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#fff" />
 
-        <Skeleton
-          animation="wave"
-          width={width}
-          height={s(50)}
-          style={styles.title}
-        />
-        <Skeleton
-          animation="wave"
-          width={width}
-          height={s(40)}
-          style={styles.subtitle}
-        />
-        <Skeleton
-          animation="wave"
-          width={width}
-          height={s(200)}
-          style={styles.content}
-        />
-
-        <Skeleton
-          animation="wave"
-          width={width}
-          height={s(100)}
-          style={styles.footer}
-        />
+          {/* Wrap LottieView and loading text in a separate container */}
+          <View style={styles.centeredContent}>
+            <LottieView
+              source={require('../assets/lottie/2.json')} // Use require for local assets
+              autoPlay={true}
+              loop={true}
+              style={styles.lottieView} // Avoid full screen stretching
+            />
+            <Text style={styles.loadingText}>
+              Loading more items, thank you for your patience!
+            </Text>
+          </View>
+        </View>
       </View>
     </View>
   );
-}
+};
 
 const useStyles = makeStyles(theme => ({
+  main: { backgroundColor: '#fff', height: '100%' },
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-
-  image: {
-    borderBottomLeftRadius: s(16),
-    borderBottomRightRadius: s(16),
+  logo: {
+    width: s(50),
+    height: s(50),
   },
-
-  title: {
-    marginTop: s(10),
-    padding: s(10),
-    borderRadius: s(10),
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subtitle: {
-    marginTop: s(4),
-    padding: s(10),
-    borderRadius: s(10),
+  centeredContent: {
+    alignItems: 'center',
   },
-
-  content: {
-    marginTop: s(5),
-    padding: s(10),
-    borderRadius: s(10),
+  lottieView: {
+    width: s(350), // Example width, adjust based on your Lottie animation size
+    height: s(300), // Example height, adjust based on your Lottie animation size
   },
-
-  footer: {
-    borderTopLeftRadius: s(10),
-    borderTopRightRadius: s(10),
+  loadingText: {
+    maxWidth: '80%',
+    textAlign: 'center',
+    color: theme.text.dark.dimGray,
+    ...theme.fontWeights.medium,
+  },
+  formContainer: {
+    // Styles for your login form
   },
 }));
 
-export default React.memo(LoadingOfPosts);
+export default LoadingOfPosts;

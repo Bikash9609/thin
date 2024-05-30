@@ -1,53 +1,51 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StatusBar } from 'react-native';
 import { makeStyles } from '@rneui/themed';
-import { s, scale, verticalScale, vs } from 'react-native-size-matters';
+import { s, vs } from 'react-native-size-matters';
 import LottieView from 'lottie-react-native';
 import Button from './UI';
 import Header from './Header';
-import { useAppBar } from '../context/AppBarProvider';
 
 export interface EndOfPostsProps {
   refreshData: () => void;
 }
 
 const EndOfPosts: React.FC<EndOfPostsProps> = ({ refreshData }) => {
-  const { toggleAppBarVisibility, isAppBarVisible, setWithoutbackdrop } =
-    useAppBar();
   const styles = useStyles();
 
-  useEffect(() => {
-    if (!isAppBarVisible) {
-      setWithoutbackdrop(true);
-      toggleAppBarVisibility();
-    }
-  }, [isAppBarVisible]);
-
   return (
-    <View style={styles.container}>
+    <View style={styles.main}>
       <StatusBar showHideTransition="slide" />
-      <View style={styles.centeredContent}>
-        <LottieView
-          source={require('../assets/lottie/4.json')} // Use require for local assets
-          autoPlay={true}
-          loop={true}
-          style={styles.lottieView} // Avoid full screen stretching
-        />
-        <Text style={styles.message}>All posts have been displayed</Text>
-        <Text style={styles.subtitle}>
-          We'll notify you when new posts are available for you
-        </Text>
-      </View>
-      <Button
-        title="Refresh"
-        onPress={refreshData}
-        style={styles.fotterButton}
+      <Header
+        isAppBarVisible
+        toggleAppBarVisibility={() => {}}
+        withoutBackdrop
       />
+      <View style={styles.container}>
+        <View style={styles.centeredContent}>
+          <LottieView
+            source={require('../assets/lottie/4.json')} // Use require for local assets
+            autoPlay={true}
+            loop={true}
+            style={styles.lottieView} // Avoid full screen stretching
+          />
+          <Text style={styles.message}>All posts have been displayed</Text>
+          <Text style={styles.subtitle}>
+            We'll notify you when new posts are available for you
+          </Text>
+        </View>
+        <Button
+          title="Refresh"
+          onPress={refreshData}
+          style={styles.fotterButton}
+        />
+      </View>
     </View>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  main: { backgroundColor: '#fff', height: '100%' },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -65,6 +63,7 @@ const useStyles = makeStyles(theme => ({
     height: s(300), // Example height, adjust based on your Lottie animation size
   },
   message: {
+    textAlign: 'center',
     fontSize: s(theme.fontSizes.xl),
     marginTop: vs(10),
     color: theme.text.dark.dimGray,

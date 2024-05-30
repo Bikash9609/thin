@@ -251,9 +251,10 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     style={styles.iconContainer}
                     onPress={() =>
                       handleShare({
+                        url: 'https://frulow.com',
                         title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
                         message:
-                          'Checkout the **Thin App**. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app #link',
+                          'Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app https://www.frulow.com',
                       })
                     }>
                     <Icon
