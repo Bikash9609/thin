@@ -10,6 +10,7 @@ import { AppThemeProvider } from './AppThemeProvider';
 import useHideSplashScreen from './src/hooks/useHideSplashScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/AuthProvider';
+import useInternetStatus from './src/hooks/useInternetStatus';
 
 // TODO: need to add Loading screen
 // TODO: add internal linking for the app
@@ -20,6 +21,7 @@ import { AuthProvider } from './src/context/AuthProvider';
 // Thin: Rapid news
 
 export default function App() {
+  useInternetStatus();
   useHideSplashScreen();
   useFirebasePushNotifications();
   useCheckForUpdates();

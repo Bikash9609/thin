@@ -18,6 +18,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [error, setError] = useState<any | null>(null);
+  const [fetchedPages, setFetchedPages] = useState<number[]>([]);
 
   const addLoadingScreen = useCallback((remove?: boolean) => {
     if (remove) {
@@ -30,7 +31,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   }, []);
 
   const fetchDataAndAppend = useCallback(async () => {
-    if (!hasMore || loading) return;
+    if (!hasMore || loading || fetchedPages.includes(page)) return;
 
     setLoading(true);
     let tries = 0;
@@ -41,7 +42,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
 
     while (tries < 3) {
       try {
-        console.log('Making api call...');
+        setFetchedPages(prev => [...prev, page as number]);
         const response = await fetchData(page);
         const hasMoreItem = response?.length > 0;
         setHasMore(hasMoreItem);
@@ -71,7 +72,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
 
     // If unsuccessful after three attempts, set loading to false
     setLoading(false);
-  }, [hasMore, loading, data]);
+  }, [hasMore, loading, data, fetchedPages]);
 
   console.log(hasMore, loading);
 

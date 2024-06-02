@@ -85,7 +85,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   const { theme } = useTheme();
   const styles = useStyles();
   const [isInView, componentRef] = useIsComponentInView();
-  const { handleShare, viewRef } = useShare();
+  const { handleShare, viewRef, isLoading } = useShare({ storyUuid: uuid });
   const { handleAction, state, activeUserValue, loading } = useCardActions(
     {
       dislike: +dislikes,
@@ -248,15 +248,9 @@ const NewsItem: React.FC<NewsItemProps> = ({
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    disabled={isLoading}
                     style={styles.iconContainer}
-                    onPress={() =>
-                      handleShare({
-                        url: 'https://frulow.com',
-                        title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
-                        message:
-                          'Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app https://www.frulow.com',
-                      })
-                    }>
+                    onPress={() => handleShare({})}>
                     <Icon
                       name="share-social-outline"
                       size={footerIconSize}

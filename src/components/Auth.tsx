@@ -24,7 +24,6 @@ import AuthLoading from './AuthLoading';
 import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
 import { useAuth } from '../context/AuthProvider';
-import useDelayedEffect from '../hooks/useDleayedEffect';
 import Snackbar from 'react-native-snackbar';
 
 const screenHeight = Dimensions.get('window').height;
@@ -72,7 +71,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   const googleLogin = useCallback(async () => {
     try {
       setIsLoading(true);
-      setIsSignedIn(await GoogleSignin.isSignedIn());
+      setIsSignedIn(await GoogleSignin.hasPreviousSignIn());
       // Sign in with Google
       const userInfo = await GoogleSignin.signIn();
       // Fetch user token from Firebase
@@ -91,7 +90,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
 
   const googleLoginSilent = useCallback(async () => {
     try {
-      const userInfo = await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signInSilently();
       if (!userInfo?.idToken) throw new Error('Error logging in');
       const res = await fetchUserLoginToken(userInfo.idToken);
       login(res);

@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { View, Alert } from 'react-native';
 import { captureScreen, CaptureOptions } from 'react-native-view-shot';
 import Share from 'react-native-share';
+import useShareLink from './useShareLink';
+import Snackbar from 'react-native-snackbar';
 
 interface ShareOptions {
   title: string;
@@ -10,7 +12,15 @@ interface ShareOptions {
   social: string;
 }
 
-const useShare = () => {
+interface Props {
+  storyUuid: string;
+}
+
+const useShare = ({ storyUuid }: Props) => {
+  const { getShareLink, isLoading, shareLink } = useShareLink({
+    storyUuid,
+  });
+
   const viewRef = useRef<View>(null);
 
   const handleShare = async (opts: Partial<ShareOptions>) => {
@@ -18,6 +28,10 @@ const useShare = () => {
       if (!viewRef.current?.props?.style) {
         return Alert.alert('Error', 'Failed to capture screen.');
       }
+
+      const res = await getShareLink();
+
+      if (!res?.url) return;
 
       // Capture the current screen
       const options: CaptureOptions = {
@@ -30,13 +44,10 @@ const useShare = () => {
       };
       const uri = await captureScreen(options);
 
-      // Construct the message
-      const message = 'Check out this app! Download it now.';
-
       // Share the screenshot and message
-      const shareOptions: ShareOptions = {
-        title: 'Share via',
-        message: message,
+      const shareOptions: Partial<ShareOptions> = {
+        title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
+        message: `Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app ${res.url}`,
         url: uri,
         ...opts,
         social: Share.Social.WHATSAPP, // You can change the platform here
@@ -45,11 +56,14 @@ const useShare = () => {
       await Share.shareSingle(shareOptions as any);
     } catch (error) {
       console.error('Error sharing screenshot:', error);
-      Alert.alert('Error', 'Failed to share screenshot.');
+      Snackbar.show({
+        text: 'Error sharing story. Please try again!',
+        duration: Snackbar.LENGTH_SHORT,
+      });
     }
   };
 
-  return { handleShare, viewRef };
+  return { handleShare, viewRef, isLoading };
 };
 
 export default useShare;

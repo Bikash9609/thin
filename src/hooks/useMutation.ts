@@ -30,6 +30,7 @@ const useMutation = <T>({
       if (onSuccess) {
         onSuccess(responseData);
       }
+      return responseData;
     } catch (err) {
       setError(err as Error);
       if (onError) {
