@@ -38,6 +38,7 @@ function NewsItemScreen({ route, navigation }: PageProps<'NewsItemScreen'>) {
   return (
     <View style={styles.container}>
       <NewsItem
+        isInView
         uuid={item.uuid}
         author={item.author_name}
         datePublished={item.datePublished}

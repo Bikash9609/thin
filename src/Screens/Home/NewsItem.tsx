@@ -8,6 +8,7 @@ import {
   Pressable,
   ImageBackground,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ImageView from 'react-native-image-viewing';
@@ -20,13 +21,15 @@ import { scale, verticalScale, vs, s } from 'react-native-size-matters';
 import useShare from '../../hooks/useShare';
 import useCardActions, { ActionType } from '../../hooks/useCardAction';
 import { getPlural } from '../../helpers/words';
-import useIsComponentInView from '../../hooks/useIsComponentInView';
 import { numberToWords } from '../../helpers/numbers';
 import { ScreenWidth } from '@rneui/base';
 import { useAppBar } from '../../context/AppBarProvider';
 import AnimatedIconButton from '../../components/AnimatedIconButton';
-import { useHome } from '../../context/HomeProvider';
+import Stack from '../../components/Stack';
+import SheetOptions, { Option } from '../../components/SheetOptions';
+import useReport from '../../hooks/useReport';
 
+const { width } = Dimensions.get('window');
 export interface NewsItemProps {
   uuid: string;
   title: string; // Title of the news item (max 60 characters)
@@ -85,6 +88,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   refreshData,
   isInView,
 }) => {
+  const { reportPost } = useReport({ postuuid: uuid });
   const { toggleAppBarVisibility, isAppBarVisible } = useAppBar();
   const { theme } = useTheme();
   const styles = useStyles();
@@ -99,6 +103,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
     viewerReaction,
   );
 
+  const [moreMenu, setMoreMenu] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
   const [zoomImage, setZoomImage] = useState(false);
@@ -120,6 +125,12 @@ const NewsItem: React.FC<NewsItemProps> = ({
 
   const getActiveIconColor = (type: ActionType) => {
     return type === activeUserValue ? '#fff' : '#808080';
+  };
+
+  const handleMenuOptionClick = ({ id }: Option) => {
+    if (id === 1) {
+      reportPost();
+    }
   };
 
   const getActiveIcon = (
@@ -150,6 +161,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
               visible={zoomImage}
               onRequestClose={() => setZoomImage(false)}
             />
+
             {imageAttr.title ? (
               <AnimatedIconButton
                 isInView={!!isInView}
@@ -164,54 +176,65 @@ const NewsItem: React.FC<NewsItemProps> = ({
             ) : (
               <View />
             )}
+            <Icon
+              name="ellipsis-vertical-outline"
+              size={s(14)}
+              color="#fff"
+              style={[styles.attribute, styles.moreMenuIcon]}
+              onPress={() => setMoreMenu(true)}
+            />
+            <SheetOptions
+              isOpen={moreMenu}
+              onClose={() => setMoreMenu(false)}
+              onOptionPress={handleMenuOptionClick}
+              options={[{ id: 1, label: 'Report', icon: 'flag-outline' }]}
+            />
           </View>
 
-          <View style={styles.content}>
-            <Text
-              style={styles.title}
-              numberOfLines={3}
-              onPress={handleOpenLink(link)}>
-              {title}
-            </Text>
-            {attributeKeyword && (
-              <Text style={styles.summary} numberOfLines={1}>
-                {attributeKeyword}
-              </Text>
-            )}
-            <View style={styles.contentMetaInfo}>
-              <TouchableOpacity
-                onPress={handleOpenLink(website)}
-                style={styles.contentMetaInfo}>
-                <Icon
-                  name="person-outline"
-                  size={14}
-                  color="#808080"
-                  style={styles.contentIcon}
-                />
-                <Text style={styles.contentMetaText}>{author}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.contentMetaInfo}
+          <Pressable onPress={toggleAppBarVisibility}>
+            <View style={styles.content}>
+              <Text
+                style={styles.title}
+                numberOfLines={3}
                 onPress={handleOpenLink(link)}>
-                <Icon
-                  name="calendar-outline"
-                  size={14}
-                  color="#808080"
-                  style={styles.contentIcon}
-                />
-                <Text style={styles.contentMetaText}>
-                  {renderMetaText(datePublished)}
+                {title}
+              </Text>
+              {attributeKeyword && (
+                <Text style={styles.summary} numberOfLines={1}>
+                  {attributeKeyword}
                 </Text>
-              </TouchableOpacity>
-            </View>
+              )}
+              <View style={styles.contentMetaInfo}>
+                <TouchableOpacity
+                  onPress={handleOpenLink(website)}
+                  style={styles.contentMetaInfo}>
+                  <Icon
+                    name="person-outline"
+                    size={s(14)}
+                    color="#808080"
+                    style={styles.contentIcon}
+                  />
+                  <Text style={styles.contentMetaText}>{author}</Text>
+                </TouchableOpacity>
 
-            <Text
-              style={styles.contentInfoText}
-              onPress={toggleAppBarVisibility}>
-              {infoText}
-            </Text>
-          </View>
+                <TouchableOpacity
+                  style={styles.contentMetaInfo}
+                  onPress={handleOpenLink(link)}>
+                  <Icon
+                    name="calendar-outline"
+                    size={s(14)}
+                    color="#808080"
+                    style={styles.contentIcon}
+                  />
+                  <Text style={styles.contentMetaText}>
+                    {renderMetaText(datePublished)}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.contentInfoText}>{infoText}</Text>
+            </View>
+          </Pressable>
         </ScrollView>
 
         {!isAppBarVisible && (
@@ -221,7 +244,12 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 <LinearProgress
                   variant="indeterminate"
                   color={theme.colors.blue[400]}
-                  style={{ height: 1, width: ScreenWidth - s(20) }}
+                  style={{
+                    height: s(3),
+                    width: ScreenWidth - s(20),
+                    borderTopRightRadius: 300,
+                    borderTopLeftRadius: 300,
+                  }}
                 />
               </View>
             )}
@@ -323,6 +351,7 @@ const useStyles = makeStyles(theme => ({
     borderBottomLeftRadius: scale(16),
     borderBottomRightRadius: scale(16),
   },
+
   content: {
     paddingHorizontal: scale(20),
     paddingVertical: scale(10),
@@ -381,6 +410,7 @@ const useStyles = makeStyles(theme => ({
     borderBottomLeftRadius: scale(16),
     borderBottomRightRadius: scale(16),
   },
+
   attributeIcon: {
     marginRight: scale(5),
   },
@@ -403,6 +433,12 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     ...theme.fontWeights.medium,
   },
+  moreMenuIcon: {
+    top: scale(10),
+    left: undefined,
+    right: scale(10),
+  },
+
   authorAttr: {
     fontSize: scale(10),
   },

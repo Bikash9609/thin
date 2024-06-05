@@ -8,6 +8,7 @@ import {
   TextStyle,
   Pressable,
 } from 'react-native';
+import { scale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 interface AnimatedIconButtonProps {
@@ -82,6 +83,7 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({
           style={[styles.attributeIcon, iconStyles ?? []].flat()}
           name={iconName}
           color="#fff"
+          size={scale(14)}
         />
       )}
       {expanded && (

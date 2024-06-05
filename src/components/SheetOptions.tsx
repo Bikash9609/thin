@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type Option = {
+export type Option = {
   id: number;
   label: string;
   icon?: string;
@@ -33,7 +33,7 @@ type Props = {
   options: Option[];
 };
 
-const ImageUploader = ({ isOpen, onClose, onOptionPress, options }: Props) => {
+const SheetOptions = ({ isOpen, onClose, onOptionPress, options }: Props) => {
   const styles = useStyles();
   const { theme } = useTheme();
 
@@ -66,4 +66,4 @@ const ImageUploader = ({ isOpen, onClose, onOptionPress, options }: Props) => {
   );
 };
 
-export default ImageUploader;
+export default SheetOptions;
