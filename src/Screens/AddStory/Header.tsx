@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  Linking,
 } from 'react-native';
 import { s } from 'react-native-size-matters';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import config from '../../config/config';
 
 interface HeaderProps {
   handleStepChange: () => void;
@@ -24,6 +26,11 @@ const Header: React.FC<HeaderProps> = ({
   disabled,
 }) => {
   const styles = useStyles();
+  const handleOpenLink = (link: string | undefined) => () => {
+    if (link) {
+      Linking.openURL(link);
+    }
+  };
   return (
     <View style={styles.container}>
       <Pressable onPress={onClose}>
@@ -32,14 +39,25 @@ const Header: React.FC<HeaderProps> = ({
           <Text style={styles.title}>Create Post</Text>
         </View>
       </Pressable>
-      <TouchableOpacity
-        onPress={handleStepChange}
-        style={styles.addButton}
-        disabled={disabled}>
-        <Text style={styles.addButtonText}>
-          {activeStep > 2 ? 'Publish' : 'Next'}
-        </Text>
-      </TouchableOpacity>
+
+      <View style={styles.stackRow}>
+        <Pressable
+          onPress={handleOpenLink(config.howToWritePostUrl)}
+          style={styles.helpIcon}>
+          <View style={styles.leftContent}>
+            <Ionicons name="help-circle-outline" size={s(24)} color="black" />
+          </View>
+        </Pressable>
+
+        <TouchableOpacity
+          onPress={handleStepChange}
+          style={styles.addButton}
+          disabled={disabled}>
+          <Text style={styles.addButtonText}>
+            {activeStep > 2 ? 'Publish' : 'Next'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -63,6 +81,15 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 10,
     fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.bold,
+  },
+  stackRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpIcon: {
+    marginRight: s(10),
   },
   addButton: {
     backgroundColor: theme.colors.blue[600],

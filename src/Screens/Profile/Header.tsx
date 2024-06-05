@@ -16,6 +16,8 @@ import LinearProgressGeneric from '../../components/LinearProgress';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../context/AuthProvider';
+import { openLink } from '../../utils';
+import config from '../../config/config';
 
 interface HeaderProps {
   onAddNewContent: () => void;
@@ -73,6 +75,24 @@ const Header: React.FC<HeaderProps> = ({ onAddNewContent, isLoading }) => {
               onPress={() => setModalVisible(false)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
+            <Text style={styles.reminderTerms}>
+              <Text style={styles.link} onPress={openLink(config.terms)}>
+                Terms
+              </Text>
+              ,{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openLink(config.privacy)}>
+                Privacy
+              </Text>
+              , &{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openLink(config.guidelines)}>
+                User guidelines
+              </Text>
+              .
+            </Text>
           </View>
         </View>
       </Modal>
@@ -162,6 +182,20 @@ const useStyles = makeStyles(theme => ({
     color: theme.text.dark.deepGray,
     fontSize: s(theme.fontSizes.base - 2),
     ...theme.fontWeights.bold,
+  },
+
+  reminderTerms: {
+    marginTop: s(10),
+    textAlign: 'center',
+    color: theme.text.dark.dimGray,
+    fontSize: s(theme.fontSizes.xs - 3),
+    ...theme.fontWeights.medium,
+  },
+  link: {
+    color: theme.text.dark.deepGray,
+    textDecorationLine: 'underline',
+    fontSize: s(theme.fontSizes.xs - 2),
+    ...theme.fontWeights.medium,
   },
 }));
 

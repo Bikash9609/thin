@@ -108,7 +108,7 @@ const useStyles = makeStyles(theme => ({
     padding: s(10),
     fontSize: s(theme.fontSizes.base - 2),
     color: theme.text.dark.black,
-    ...theme.fontWeights.medium,
+    ...theme.fontWeights.semiBold,
   },
   errorIcon: {
     marginLeft: s(5),

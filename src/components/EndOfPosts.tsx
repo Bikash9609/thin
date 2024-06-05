@@ -64,13 +64,13 @@ const useStyles = makeStyles(theme => ({
   },
   message: {
     textAlign: 'center',
-    fontSize: s(theme.fontSizes.xl),
+    fontSize: s(theme.fontSizes.lg),
     marginTop: vs(10),
     color: theme.text.dark.dimGray,
     ...theme.fontWeights.bold,
   },
   subtitle: {
-    fontSize: s(theme.fontSizes.base - 2),
+    fontSize: s(theme.fontSizes.sm),
     color: theme.text.dark.dimGray,
     marginBottom: vs(10),
     textAlign: 'center',

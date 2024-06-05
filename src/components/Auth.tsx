@@ -12,6 +12,7 @@ import {
   StatusBar,
   Image,
   Text,
+  Linking,
 } from 'react-native';
 import {
   GoogleSignin,
@@ -37,6 +38,10 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   const { login, logout, isAuthenticated, user } = useAuth();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const openLink = (url: string) => {
+    Linking.openURL(url);
+  };
 
   const configureGoogleSignIn = async () => {
     await GoogleSignin.configure({
@@ -165,6 +170,25 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
               onPress={googleLogin}
               disabled={isLoading}
             />
+            <Text style={styles.reminderTerms}>
+              *By signing in you accept Thin{' '}
+              <Text style={styles.link} onPress={() => openLink(config.terms)}>
+                terms
+              </Text>
+              ,{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openLink(config.privacy)}>
+                privacy
+              </Text>
+              , &{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openLink(config.guidelines)}>
+                user guidelines
+              </Text>
+              .
+            </Text>
           </View>
         </View>
       </ImageBackground>
@@ -221,10 +245,11 @@ const useStyles = makeStyles(theme => ({
     height: 48, // Google button height
     borderRadius: 20,
     alignSelf: 'center',
-    marginBottom: 30,
+    marginBottom: s(5),
   },
   footerContainer: {
     padding: s(30),
+    paddingBottom: 0,
     position: 'absolute',
     left: 0,
     right: 0,
@@ -232,7 +257,19 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.colors.darkBlue[800],
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: vs(200), // Adjust height as needed
+    height: vs(250), // Adjust height as needed
+  },
+  reminderTerms: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: s(theme.fontSizes.xs - 3),
+    ...theme.fontWeights.medium,
+  },
+  link: {
+    color: theme.colors.blue[50], // Or any color you want for the links
+    textDecorationLine: 'underline',
+    fontSize: s(theme.fontSizes.xs - 3),
+    ...theme.fontWeights.medium,
   },
 }));
 

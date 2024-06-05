@@ -144,8 +144,14 @@ const ProfileScreen: React.FC = () => {
             </View>
           ) : (
             <View style={styles.noItemsContainer}>
+              <LottieView
+                source={require('../../assets/lottie/4.json')} // Use require for local assets
+                autoPlay={true}
+                loop={true}
+                style={styles.lottieView} // Avoid full screen stretching
+              />
               <Text style={styles.noItemsText}>
-                No posts found. Add some posts by creating new stories!
+                No posts found. Add some stories and get upvotes!
               </Text>
             </View>
           )}
@@ -273,6 +279,7 @@ const useStyles = makeStyles(theme => ({
   noItemsText: {
     color: theme.text.dark.dimGray,
     textAlign: 'center',
+    maxWidth: '80%',
     fontSize: s(theme.fontSizes.base),
     ...theme.fontWeights.semiBold,
   },

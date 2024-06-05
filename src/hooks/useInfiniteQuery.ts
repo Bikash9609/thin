@@ -31,7 +31,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   }, []);
 
   const fetchDataAndAppend = useCallback(async () => {
-    if (!hasMore || loading || fetchedPages.includes(page)) return;
+    if (!hasMore || loading) return;
 
     setLoading(true);
     let tries = 0;

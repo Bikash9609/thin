@@ -24,6 +24,8 @@ import useIsComponentInView from '../../hooks/useIsComponentInView';
 import { numberToWords } from '../../helpers/numbers';
 import { ScreenWidth } from '@rneui/base';
 import { useAppBar } from '../../context/AppBarProvider';
+import AnimatedIconButton from '../../components/AnimatedIconButton';
+import { useHome } from '../../context/HomeProvider';
 
 export interface NewsItemProps {
   uuid: string;
@@ -44,6 +46,7 @@ export interface NewsItemProps {
   };
   viewerReaction?: 'like' | 'dislike';
   refreshData: () => void;
+  isInView?: boolean;
 }
 
 const renderMetaText = (datePublished: string) => {
@@ -80,11 +83,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
   imageAttr,
   viewerReaction,
   refreshData,
+  isInView,
 }) => {
   const { toggleAppBarVisibility, isAppBarVisible } = useAppBar();
   const { theme } = useTheme();
   const styles = useStyles();
-  const [isInView, componentRef] = useIsComponentInView();
   const { handleShare, viewRef, isLoading } = useShare({ storyUuid: uuid });
   const { handleAction, state, activeUserValue, loading } = useCardActions(
     {
@@ -94,7 +97,6 @@ const NewsItem: React.FC<NewsItemProps> = ({
       postUuid: uuid,
     },
     viewerReaction,
-    isInView,
   );
 
   const [isLiked, setIsLiked] = useState(false);
@@ -131,7 +133,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   const footerIconSize = scale(23);
 
   return (
-    <View ref={componentRef} key={uuid} style={styles.container}>
+    <View key={uuid} style={styles.container}>
       <StatusBar showHideTransition="slide" />
 
       <ViewShot ref={viewRef} style={styles.item}>
@@ -149,20 +151,16 @@ const NewsItem: React.FC<NewsItemProps> = ({
               onRequestClose={() => setZoomImage(false)}
             />
             {imageAttr.title ? (
-              <TouchableOpacity
+              <AnimatedIconButton
+                isInView={!!isInView}
+                iconName="information-circle-outline"
+                label={`Image by ${imageAttr.title}`}
                 onPress={handleOpenLink(imageAttr.url)}
-                style={styles.attribute}>
-                <Icon
-                  style={styles.attributeIcon}
-                  name="person-outline"
-                  color={'#fff'}
-                />
-                <Text
-                  style={[styles.attributeText, styles.authorAttr]}
-                  numberOfLines={1}>
-                  Image by {imageAttr.title}
-                </Text>
-              </TouchableOpacity>
+                timeToHide={6}
+                containerStyles={[styles.attribute]}
+                iconStyles={[styles.attributeIcon]}
+                labelStyles={[styles.attributeText, styles.authorAttr]}
+              />
             ) : (
               <View />
             )}

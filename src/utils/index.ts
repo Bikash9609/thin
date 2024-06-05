@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { Linking } from 'react-native';
 import { Image } from 'react-native-compressor';
 
 export async function compressImage(uri: string, quality: number = 0.8) {
@@ -25,4 +26,8 @@ export const renderMetaText = (datePublished: string) => {
   } else {
     return 'Just now';
   }
+};
+
+export const openLink = (url: string) => () => {
+  Linking.openURL(url);
 };

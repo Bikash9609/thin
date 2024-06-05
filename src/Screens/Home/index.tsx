@@ -1,15 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import NewsItem from './NewsItem';
-import useInfiniteQuery from '../../hooks/useInfiniteQuery';
-import { request } from '../../axios';
 import AuthLoading from '../../components/AuthLoading';
 import EndOfPosts from '../../components/EndOfPosts';
 import LoadingOfPosts from '../../components/LoadingOfPosts';
 import useCarouselGuide from './useCarouselGuide';
 import useCarouselPrefetcher from './useCarousel';
-import { useAppBar } from '../../context/AppBarProvider';
+import { HomeProvider, useHome } from '../../context/HomeProvider';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -35,32 +39,18 @@ export interface PostResponse {
   author_website?: string;
 }
 
-const fetchPosts = async (page: number) => {
-  const res = await request<PostResponse[]>({
-    method: 'get',
-    url: '/posts',
-    params: { page },
-  });
-  return res;
-};
-
-const updatePostViewed = async (item: PostResponse) => {
-  try {
-    if (!item) return;
-    await request({
-      method: 'post',
-      url: `/post/view/${item.uuid}`,
-    });
-    console.log('Post viewed', item.uuid);
-  } catch (error) {
-    console.error(`Error viewing post ${item.uuid}`);
-  }
-};
-
-const Navigator = () => {
-  const [viewedPosts, setViewedPosts] = useState<string[]>([]);
-  const [data, { fetchMore, loading, refreshData, hasMore }] =
-    useInfiniteQuery(fetchPosts);
+const Main = () => {
+  const {
+    currentIndex,
+    addItemToViewed,
+    data,
+    fetchMore,
+    hasMore,
+    loading,
+    refreshData,
+    viewedItems,
+    setCurrentIndex,
+  } = useHome();
 
   const { carouselRef, onScroll } = useCarouselGuide({
     enabled: !!(!loading && data.length),
@@ -68,7 +58,7 @@ const Navigator = () => {
 
   useCarouselPrefetcher({
     enabled: hasMore,
-    viewedItems: viewedPosts.length,
+    viewedItems: viewedItems.length,
     isLoading: loading,
     totalItems: data.length ?? 0,
     onPrefetch: fetchMore,
@@ -76,53 +66,53 @@ const Navigator = () => {
 
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
+      setCurrentIndex(slideIndex);
       onScroll();
-      const item = data[slideIndex];
-
-      if (item && item.uuid && !viewedPosts.includes(item.uuid)) {
-        updatePostViewed(item);
-        setViewedPosts(prev => [...prev, item.uuid]);
-      }
+      addItemToViewed(slideIndex);
     },
-    [data, viewedPosts],
+    [data, viewedItems],
   );
 
   useEffect(() => {
-    if (data?.[0] && !viewedPosts.includes(data?.[0]?.uuid)) {
+    if (data?.[0] && !viewedItems.includes(data?.[0]?.uuid)) {
       handleItemViewed(0);
     }
   }, [data]);
 
-  const renderNewsItem = useCallback(({ item }: { item: PostResponse }) => {
-    if (!item.uuid) {
-      if ((item as any).noItemScreen) {
-        return <EndOfPosts refreshData={refreshData} />;
+  const renderNewsItem = useCallback(
+    ({ item }: { item: PostResponse }) => {
+      if (!item.uuid) {
+        if ((item as any).noItemScreen) {
+          return <EndOfPosts refreshData={refreshData} />;
+        }
+        if ((item as any).loadingScreen) {
+          return <LoadingOfPosts />;
+        }
       }
-      if ((item as any).loadingScreen) {
-        return <LoadingOfPosts />;
-      }
-    }
 
-    return (
-      <NewsItem
-        uuid={item.uuid}
-        author={item.author_name}
-        datePublished={item.datePublished}
-        website={item.author_website as string}
-        link={item.link}
-        subtitle={item.subtitle}
-        imageUrl={item.imageUrl}
-        title={item.title}
-        attributeKeyword={item.attributeKeyword}
-        infoText={item.infoText}
-        likes={item.likes}
-        dislikes={item.dislikes}
-        imageAttr={{ url: item.imageAttrUrl, title: item.imageAttr }}
-        viewerReaction={(item.viewer_reaction as any) ?? undefined}
-        refreshData={refreshData}
-      />
-    );
-  }, []);
+      return (
+        <NewsItem
+          uuid={item.uuid}
+          author={item.author_name}
+          datePublished={item.datePublished}
+          website={item.author_website as string}
+          link={item.link}
+          subtitle={item.subtitle}
+          imageUrl={item.imageUrl}
+          title={item.title}
+          attributeKeyword={item.attributeKeyword}
+          infoText={item.infoText}
+          likes={item.likes}
+          dislikes={item.dislikes}
+          imageAttr={{ url: item.imageAttrUrl, title: item.imageAttr }}
+          viewerReaction={(item.viewer_reaction as any) ?? undefined}
+          refreshData={refreshData}
+          isInView={item.uuid === data[currentIndex].uuid}
+        />
+      );
+    },
+    [currentIndex, data],
+  );
 
   if (loading && !data.length) return <AuthLoading />;
 
@@ -145,8 +135,17 @@ const Navigator = () => {
         onEndReachedThreshold={0.5}
         onSnapToItem={handleItemViewed}
         activeSlideOffset={0}
+        viewabilityConfig={{ itemVisiblePercentThreshold: 3 }}
       />
     </View>
+  );
+};
+
+const HomeScreen = () => {
+  return (
+    <HomeProvider>
+      <Main />
+    </HomeProvider>
   );
 };
 
@@ -156,4 +155,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Navigator;
+export default HomeScreen;
