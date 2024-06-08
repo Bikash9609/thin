@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
-import {Avatar, Icon, makeStyles} from '@rneui/themed';
-import {Pressable, View} from 'react-native';
-import {s} from 'react-native-size-matters';
+import { Avatar, Icon, makeStyles } from '@rneui/themed';
+import { Pressable, View } from 'react-native';
+import { s } from 'react-native-size-matters';
 
 interface SmartAvatarProps {
   src: string;
@@ -32,10 +32,10 @@ const SmartAvatar: React.FC<SmartAvatarProps> = ({
         <Avatar
           size={size}
           rounded
-          source={{uri: src}}
+          source={{ uri: src ?? require('../assets/2.png') }}
           containerStyle={styles.avatarContainer}
           avatarStyle={styles.avatar}
-          imageProps={{onLoad: handleImageLoad}}
+          imageProps={{ onLoad: handleImageLoad }}
         />
         {(loading || forceLoading) && (
           <View style={styles.overlay}>

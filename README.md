@@ -108,3 +108,23 @@ module.exports = {
 the short answer uses `gradlew assembleRelease` instead.
 
 not short answer :) The command you are using `gradlew bundleRelease` builds an android App bundle. read this: Difference between apk (.apk) and app bundle (.aab) and this: https://developer.android.com/guide/app-bundle AAB file is new and not all stores support it.
+
+## Generating APK
+
+- Debug
+
+  - `npx react-native run-android --variant=debug`
+  - output: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+- Release APK (Generate this to install in android, even for testing)
+  - `npx react-native run-android --variant=release` or `cd android && ./gradlew assembleRelease`
+  - **DONE** Follow: https://stackoverflow.com/a/46170797/12255214 or https://reactnative.dev/docs/signed-apk-android
+
+## Generate AAB
+
+- `cd android && ./gradlew assembleRelease && ./gradlew bundleRelease`
+- `npx react-native build-android --mode=release`
+
+## Testing Release Build
+
+- `yarn android --mode release`

@@ -66,6 +66,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       await AsyncStorageUtils.setItem(config.tokenStorageKey, res.token);
       return res;
     } catch (error) {
+      console.log(error);
       await AsyncStorageUtils.clearAll();
       setIsSignedIn(false);
       Alert.prompt('Error logging in');

@@ -1,13 +1,13 @@
 const prfixBaseUrl = (url: string) => {
   const baseUrl = !__DEV__
-    ? 'https://thin-be.onrender.com'
+    ? 'https://be-thin.maarkar.in'
     : 'http://localhost:4500';
   return `${baseUrl}/${url}`;
 };
 
 export default {
   baseURL: !__DEV__
-    ? 'https://thin-be.onrender.com/api/v1'
+    ? 'https://be-thin.maarkar.in/api/v1'
     : 'http://localhost:4500/api/v1',
   tokenStorageKey: 'User::Token',
   authorTermsAndConditionUrl: '#',

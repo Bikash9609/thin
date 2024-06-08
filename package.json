@@ -8,6 +8,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
+    "update:version": "npx react-native-version --never-amend",
+    "build": "npx react-native@latest build-android --mode=release",
     "generate:bootsplash": "yarn react-native generate-bootsplash assets/icon.png --platforms=android,ios,web --background=F5FCFF --logo-width=100 --assets-output=assets --flavor=main --html=index.html"
   },
   "dependencies": {

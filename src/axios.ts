@@ -35,6 +35,7 @@ export const request = async <T>({
   try {
     const token = await AsyncStorageUtils.getItem(config.tokenStorageKey);
 
+    console.log('Inside');
     const response: AxiosResponse<ApiResponse<T>> = await api.request<
       ApiResponse<T>
     >({
@@ -42,6 +43,7 @@ export const request = async <T>({
       url,
       params,
       headers: {
+        ...axios.defaults.headers,
         ...(token && { Authorization: `Bearer ${token}` }),
         ...(defaultHeaders || {}), // Ensure defaultHeaders is an object
       },
@@ -49,6 +51,8 @@ export const request = async <T>({
     });
     return response.data;
   } catch (error) {
+    console.log('Error', error);
+
     if (axios.isAxiosError(error)) {
       console.log(error.response?.data);
       const axiosError: AxiosError<ApiError> = error;
