@@ -9,7 +9,12 @@ import {
 import { useTheme, makeStyles, LinearProgress } from '@rneui/themed';
 import { useCallback, useEffect, useState } from 'react';
 import { ms, s } from 'react-native-size-matters';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import Snackbar from 'react-native-snackbar';
+import { ImagePickerResponse } from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import Input from '../../components/Input';
 import {
   getWordCount,
@@ -19,13 +24,10 @@ import {
 import ImageUploader from '../../components/ImageUploader';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
-import { ImagePickerResponse } from 'react-native-image-picker';
 import useMutation from '../../hooks/useMutation';
 import CategorySelector from '../../components/CategorySelector';
 import useScrollView from '../../hooks/useScrollView';
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import Snackbar from 'react-native-snackbar';
+
 import LinearProgressGeneric from '../../components/LinearProgress';
 import { compressImage } from '../../utils';
 

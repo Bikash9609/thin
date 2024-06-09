@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -36,7 +36,9 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (isInView) setExpanded(true);
+    if (isInView) {
+      showLabel();
+    }
   }, [isInView]);
 
   useEffect(() => {
@@ -49,15 +51,15 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({
     return () => clearTimeout(timer);
   }, [expanded, timeToHide]);
 
-  const hideLabel = () => {
+  const hideLabel = useCallback(() => {
     Animated.timing(fadeAnim, {
       toValue: 0,
       duration: 500,
       useNativeDriver: true,
     }).start(() => setExpanded(false));
-  };
+  }, []);
 
-  const showLabel = () => {
+  const showLabel = useCallback(() => {
     setExpanded(true);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -68,7 +70,7 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({
         hideLabel();
       }, timeToHide * 1000);
     });
-  };
+  }, [hideLabel]);
 
   return (
     <TouchableOpacity

@@ -1,23 +1,32 @@
-import messaging from '@react-native-firebase/messaging';
+import { PermissionsAndroid, Platform } from 'react-native';
+// import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 const useNotificationPermission = () => {
   async function requestNotificationPermission() {
-    console.log('here');
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    let enabled = false;
 
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_NOTIFICATION_POLICY,
+        {
+          title: 'Notification Permission',
+          message: 'Allow this app to access notifications?',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      enabled = granted === PermissionsAndroid.RESULTS.GRANTED;
+    } else if (Platform.OS === 'ios') {
+      // PushNotificationIOS.requestPermissions();
+      // enabled = PushNotificationIOS.checkPermissions().alert === 1;
     }
 
-    // Check if the app has notification permission from the user
-    const hasPermission = await messaging().hasPermission();
+    if (enabled) {
+      console.log('Notification permission granted');
+    }
 
-    console.log('Has permission:', hasPermission);
-
-    return enabled && hasPermission;
+    return enabled;
   }
 
   return { requestNotificationPermission };

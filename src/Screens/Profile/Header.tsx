@@ -80,15 +80,11 @@ const Header: React.FC<HeaderProps> = ({ onAddNewContent, isLoading }) => {
                 Terms
               </Text>
               ,{' '}
-              <Text
-                style={styles.link}
-                onPress={() => openLink(config.privacy)}>
+              <Text style={styles.link} onPress={openLink(config.privacy)}>
                 Privacy
               </Text>
               , &{' '}
-              <Text
-                style={styles.link}
-                onPress={() => openLink(config.guidelines)}>
+              <Text style={styles.link} onPress={openLink(config.guidelines)}>
                 User guidelines
               </Text>
               .

@@ -129,6 +129,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
 
   const handleMenuOptionClick = ({ id }: Option) => {
     if (id === 1) {
+      setMoreMenu(false);
       reportPost();
     }
   };
