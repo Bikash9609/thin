@@ -23,7 +23,6 @@ import useInternetStatus from './src/hooks/useInternetStatus';
 export default function App() {
   useInternetStatus();
   useHideSplashScreen();
-  useFirebasePushNotifications();
   useCheckForUpdates();
 
   return (

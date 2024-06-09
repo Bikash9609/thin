@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 import useInfiniteQuery from '../hooks/useInfiniteQuery';
 import { PostResponse } from '../Screens/Home';
 import { request } from '../axios';
+import useFirebasePushNotifications from '../hooks/useFcmToken';
 
 interface InViewContextProps {
   currentIndex: number;
@@ -43,6 +44,7 @@ const HomeContext = createContext<InViewContextProps | undefined>(undefined);
 export const HomeProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  useFirebasePushNotifications();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [viewedItems, setViewedItems] = useState<string[]>([]);
   const [data, { fetchMore, loading, refreshData, hasMore }] =

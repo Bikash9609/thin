@@ -6,7 +6,10 @@ import { request } from '../axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
-import useNotificationPermission from './useNotification';
+import {
+  checkNotificationPermission,
+  requestNotificationPermission,
+} from './useNotification';
 
 // Register background handler
 messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -18,14 +21,14 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 messaging().getInitialNotification();
 
 const useFirebasePushNotifications = (): void => {
-  const { requestNotificationPermission } = useNotificationPermission();
-
   useEffect(() => {
     const handlePermissionAndToken = async (): Promise<void> => {
       try {
         // Request permission for receiving push notifications
-        const permission = await requestNotificationPermission();
-        if (!permission) return;
+        let permission = await checkNotificationPermission();
+        if (!permission) {
+          permission = await requestNotificationPermission();
+        }
 
         // Get the device token
         const fcmToken: string | undefined = await messaging().getToken();
