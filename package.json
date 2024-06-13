@@ -3,14 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android:emulator": "if ! adb devices | grep emulator; then emulator -avd $(emulator -list-avds | tail -n 1); else echo 'Emulator is already running'; fi",
+    "android:emulator": "if ! adb devices | grep emulator; then emulator -avd $(emulator -list-avds | tail -n 1) &> /dev/null; else echo 'Emulator is already running'; fi",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
     "update:version": "npx react-native-version --never-amend",
-    "build": "yarn android:emulator && npx react-native@latest build-android --mode=release && ./android/./gradlew assembleRelease",
+    "build": "yarn android:emulator && npx react-native@latest build-android --mode=release && ( [ \"$(basename $PWD)\" != \"android\" ] && cd ./android ; ./gradlew assembleRelease )",
     "generate:bootsplash": "yarn react-native generate-bootsplash assets/icon.png --platforms=android,ios,web --background=F5FCFF --logo-width=100 --assets-output=assets --flavor=main --html=index.html"
   },
   "dependencies": {

@@ -52,7 +52,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         <LottieView
           source={animationSource}
           autoPlay={true}
-          loop={true}
+          loop={false}
           style={styles.animation}
         />
         <Text style={styles.text}>Oops, something went wrong!</Text>

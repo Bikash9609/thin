@@ -92,13 +92,10 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
 
   const refreshData = () => {
     setPage(1);
+    setLoading(false);
     setData([]);
     setHasMore(true);
-    setLoading(false);
     setError(null);
-    setTimeout(() => {
-      fetchDataAndAppend();
-    }, 5);
   };
 
   const values: Response<T> = useMemo(() => {

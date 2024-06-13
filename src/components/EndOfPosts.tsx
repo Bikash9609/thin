@@ -26,7 +26,7 @@ const EndOfPosts: React.FC<EndOfPostsProps> = ({ refreshData }) => {
           <LottieView
             source={require('../assets/lottie/4.json')} // Use require for local assets
             autoPlay={true}
-            loop={true}
+            loop={false}
             style={styles.lottieView} // Avoid full screen stretching
           />
           <Text style={styles.message}>All posts have been displayed</Text>
