@@ -53,7 +53,7 @@ const Main = () => {
   } = useHome();
 
   const { carouselRef, onScroll } = useCarouselGuide({
-    enabled: !!(!loading && data.length),
+    enabled: !loading && !!data.length,
   });
 
   useCarouselPrefetcher({

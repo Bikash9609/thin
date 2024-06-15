@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ import AnimatedIconButton from '../../components/AnimatedIconButton';
 import Stack from '../../components/Stack';
 import SheetOptions, { Option } from '../../components/SheetOptions';
 import useReport from '../../hooks/useReport';
+import { fs } from '../../utils/font';
 
 const { width } = Dimensions.get('window');
 export interface NewsItemProps {
@@ -88,6 +89,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
   refreshData,
   isInView,
 }) => {
+  const scrollViewRef = useRef<ScrollView | null>(null);
   const { reportPost } = useReport({ postuuid: uuid });
   const { toggleAppBarVisibility, isAppBarVisible } = useAppBar();
   const { theme } = useTheme();
@@ -142,6 +144,10 @@ const NewsItem: React.FC<NewsItemProps> = ({
     return type === activeUserValue ? active : inactive;
   };
 
+  useEffect(() => {
+    scrollViewRef?.current?.scrollTo({ y: 0, animated: true });
+  }, [isInView]);
+
   const footerIconSize = scale(23);
 
   return (
@@ -150,6 +156,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
 
       <ViewShot ref={viewRef} style={styles.item}>
         <ScrollView
+          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: s(80) }}>
           <View style={styles.imageContainer}>
@@ -258,7 +265,10 @@ const NewsItem: React.FC<NewsItemProps> = ({
               source={{ uri: imageUrl }}
               imageStyle={styles.footerBg}>
               <View style={[styles.footer]}>
-                <Text style={styles.subtitle} numberOfLines={2}>
+                <Text
+                  style={styles.footerText}
+                  numberOfLines={2}
+                  onPress={handleOpenLink(link)}>
                   {subtitle}
                 </Text>
 
@@ -359,21 +369,20 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     marginBottom: scale(2),
-    fontSize: scale(theme.fontSizes.base - 2),
+    fontSize: fs(theme.fontSizes.base),
     color: theme.text.dark.black,
     ...theme.fontWeights.bold,
   },
+
+  // subtitle
   summary: {
     marginBottom: scale(5),
-    fontSize: scale(theme.fontSizes.sm - 3),
+    fontSize: fs(theme.fontSizes.sm - 1),
     color: theme.text.dark.dimGray,
     textAlign: 'left',
     ...theme.fontWeights.normal,
   },
-  infoText: {
-    fontSize: scale(16),
-    marginBottom: scale(10),
-  },
+
   contentMetaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -385,7 +394,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: scale(5),
   },
   contentMetaText: {
-    fontSize: scale(theme.fontSizes.xs - 3),
+    fontSize: fs(theme.fontSizes.xs - 1),
     color: theme.text.dark.dimGray,
     marginRight: scale(10),
     ...theme.fontWeights.normal,
@@ -400,7 +409,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: scale(20),
     marginBottom: scale(10),
     width: '100%',
-    fontSize: scale(theme.fontSizes.sm - 2.4),
+    fontSize: fs(theme.fontSizes.sm),
     color: theme.text.dark.black,
     ...theme.fontWeights.normal,
   },
@@ -421,15 +430,15 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'flex-start',
     position: 'absolute',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
     borderRadius: scale(5),
-    paddingHorizontal: scale(5),
-    paddingVertical: scale(2),
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(5),
     top: scale(10),
     left: scale(10),
   },
   attributeText: {
-    fontSize: scale(theme.fontSizes.xs),
+    fontSize: fs(theme.fontSizes.sm - 1),
     color: theme.text.light.lightGray,
     textAlign: 'center',
     ...theme.fontWeights.medium,
@@ -467,10 +476,10 @@ const useStyles = makeStyles(theme => ({
     paddingVertical: scale(8),
     backgroundColor: 'rgba(0, 0, 0, 0.87)',
   },
-  subtitle: {
+  footerText: {
     width: '100%',
     paddingTop: scale(3),
-    fontSize: scale(theme.fontSizes.xs - 2),
+    fontSize: fs(theme.fontSizes.xs),
     color: theme.text.light.lightGray,
     textAlign: 'center',
     ...theme.fontWeights.normal,

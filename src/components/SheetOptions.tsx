@@ -7,6 +7,7 @@ import {
   useTheme,
 } from '@rneui/themed';
 import { s } from 'react-native-size-matters';
+import { fs } from '../utils/font';
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -15,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   },
   listItemTitle: {
     color: theme.text.dark.black,
-    fontSize: s(theme.fontSizes.base),
+    fontSize: fs(theme.fontSizes.sm),
     ...theme.fontWeights.semiBold,
   },
 }));
@@ -53,6 +54,7 @@ const SheetOptions = ({ isOpen, onClose, onOptionPress, options }: Props) => {
               name={option.icon}
               type="ionicon"
               color={theme.text.dark.black}
+              size={fs(18)}
             />
           )}
           <ListItem.Content>

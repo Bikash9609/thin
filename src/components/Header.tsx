@@ -71,7 +71,10 @@ const Header: React.FC<HeaderProps> = ({
           shadowStyle,
           { transform: [{ translateY: translateYAnim }] },
         ]}>
-        <Image source={require('../assets/icon.png')} style={styles.appIcon} />
+        <Image
+          source={require('../assets/icon_4.png')}
+          style={styles.appIcon}
+        />
 
         <TouchableOpacity
           style={styles.rightContainer}
@@ -134,9 +137,9 @@ const Header: React.FC<HeaderProps> = ({
 
 const useStyles = makeStyles(theme => ({
   appIcon: {
-    width: s(32), // Adjust the width as needed
-    height: s(32), // Adjust the height as needed
+    width: s(48), // Adjust the width as needed
     marginRight: s(8), // Adjust the margin as needed
+    aspectRatio: 16 / 9,
   },
   container: {
     flexDirection: 'row',

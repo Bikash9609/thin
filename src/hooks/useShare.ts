@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Dimensions } from 'react-native';
 import { captureScreen, CaptureOptions } from 'react-native-view-shot';
 import Share from 'react-native-share';
 import useShareLink from './useShareLink';
@@ -16,6 +16,8 @@ interface Props {
   storyUuid: string;
 }
 
+const { width, height } = Dimensions.get('window');
+
 const useShare = ({ storyUuid }: Props) => {
   const { getShareLink, isLoading, shareLink } = useShareLink({
     storyUuid,
@@ -25,13 +27,21 @@ const useShare = ({ storyUuid }: Props) => {
 
   const handleShare = async (opts: Partial<ShareOptions>) => {
     try {
-      if (!viewRef.current?.props?.style) {
-        return Alert.alert('Error', 'Failed to capture screen.');
+      if (!viewRef.current) {
+        return Snackbar.show({
+          text: 'Error sharing story. Please try again!',
+          duration: Snackbar.LENGTH_SHORT,
+        });
       }
 
-      const res = await getShareLink();
+      let urlToShare = shareLink;
 
-      if (!res?.url) return;
+      if (!shareLink) {
+        const res = await getShareLink();
+        if (!res?.url) return;
+
+        urlToShare = res.url;
+      }
 
       // Capture the current screen
       const options: CaptureOptions = {
@@ -39,15 +49,15 @@ const useShare = ({ storyUuid }: Props) => {
         quality: 0.8,
         result: 'data-uri',
         snapshotContentContainer: false,
-        width: (viewRef as any).current.props.style.width,
-        height: (viewRef as any).current.props.style.height,
+        width: (viewRef as any).current.props.style.width ?? width,
+        height: (viewRef as any).current.props.style.height ?? height,
       };
       const uri = await captureScreen(options);
 
       // Share the screenshot and message
       const shareOptions: Partial<ShareOptions> = {
         title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
-        message: `Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app ${res.url}`,
+        message: `Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app ${urlToShare}`,
         url: uri,
         ...opts,
         social: Share.Social.WHATSAPP, // You can change the platform here

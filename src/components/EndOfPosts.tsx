@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StatusBar } from 'react-native';
 import { makeStyles } from '@rneui/themed';
-import { s, vs } from 'react-native-size-matters';
+import { ms, s, vs } from 'react-native-size-matters';
 import LottieView from 'lottie-react-native';
 import Button from './UI';
 import Header from './Header';
@@ -64,15 +64,16 @@ const useStyles = makeStyles(theme => ({
   },
   message: {
     textAlign: 'center',
-    fontSize: s(theme.fontSizes.lg),
+    fontSize: ms(theme.fontSizes.base),
     marginTop: vs(10),
     color: theme.text.dark.dimGray,
     ...theme.fontWeights.bold,
   },
   subtitle: {
-    fontSize: s(theme.fontSizes.sm),
+    fontSize: ms(theme.fontSizes.xs),
+    maxWidth: '85%',
     color: theme.text.dark.dimGray,
-    marginBottom: vs(10),
+    marginBottom: s(10),
     textAlign: 'center',
     ...theme.fontWeights.medium,
   },

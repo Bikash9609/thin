@@ -74,8 +74,6 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
     setLoading(false);
   }, [hasMore, loading, data, fetchedPages]);
 
-  console.log(hasMore, loading);
-
   useEffect(() => {
     if (!error && !loading) {
       if (page === 1) {
@@ -93,8 +91,6 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const refreshData = () => {
     setPage(1);
     setLoading(false);
-    setData([]);
-    setHasMore(true);
     setError(null);
   };
 
