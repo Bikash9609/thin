@@ -208,7 +208,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 {title}
               </Text>
               {attributeKeyword && (
-                <Text style={styles.summary} numberOfLines={1}>
+                <Text style={styles.summary} numberOfLines={2}>
                   {attributeKeyword}
                 </Text>
               )}
@@ -479,7 +479,7 @@ const useStyles = makeStyles(theme => ({
   footerText: {
     width: '100%',
     paddingTop: scale(3),
-    fontSize: fs(theme.fontSizes.xs),
+    fontSize: fs(theme.fontSizes.xs - 1),
     color: theme.text.light.lightGray,
     textAlign: 'center',
     ...theme.fontWeights.normal,
@@ -495,7 +495,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
   },
   iconText: {
-    fontSize: scale(theme.fontSizes.xs - 2),
+    fontSize: fs(theme.fontSizes.xs - 2),
     color: theme.text.light.lightGray,
     textAlign: 'center',
     ...theme.fontWeights.medium,

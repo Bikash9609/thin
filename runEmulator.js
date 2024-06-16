@@ -1,7 +1,47 @@
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
+const path = require('path');
+
+// Define paths
+const projectPath = path.resolve();
+
+// Define commands
+const watchDelCommand = `watchman watch-del '${projectPath}'`;
+const watchProjectCommand = `watchman watch-project '${projectPath}'`;
+
+// Function to execute commands
+const clearWatchman = () => {
+  // Execute watch-del command
+  exec(watchDelCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing watch-del command: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`watch-del command executed successfully: ${stdout}`);
+
+    // Execute watch-project command
+    exec(watchProjectCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(
+          `Error executing watch-project command: ${error.message}`,
+        );
+        return;
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`watch-project command executed successfully: ${stdout}`);
+    });
+  });
+};
 
 async function runEmulator() {
   try {
+    clearWatchman();
     // Check for running emulator
     const adbDevices = spawn('adb', ['devices']);
     const devices = await new Promise((resolve, reject) => {

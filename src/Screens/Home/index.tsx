@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import NewsItem from './NewsItem';
 import AuthLoading from '../../components/AuthLoading';
@@ -15,7 +9,6 @@ import useCarouselGuide from './useCarouselGuide';
 import useCarouselPrefetcher from './useCarousel';
 import { HomeProvider, useHome } from '../../context/HomeProvider';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface PostResponse {

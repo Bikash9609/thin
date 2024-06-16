@@ -14,6 +14,7 @@ import { useAppBar } from '../context/AppBarProvider';
 import { Image } from 'react-native';
 import { useAuth } from '../context/AuthProvider';
 import { useNavigation } from '@react-navigation/native';
+import { fs } from '../utils/font';
 
 const { height } = Dimensions.get('window');
 
@@ -71,10 +72,7 @@ const Header: React.FC<HeaderProps> = ({
           shadowStyle,
           { transform: [{ translateY: translateYAnim }] },
         ]}>
-        <Image
-          source={require('../assets/icon_4.png')}
-          style={styles.appIcon}
-        />
+        <Image source={require('../assets/icon.png')} style={styles.appIcon} />
 
         <TouchableOpacity
           style={styles.rightContainer}
@@ -137,9 +135,10 @@ const Header: React.FC<HeaderProps> = ({
 
 const useStyles = makeStyles(theme => ({
   appIcon: {
-    width: s(48), // Adjust the width as needed
+    width: s(29), // Adjust the width as needed
+    height: s(32), // Adjust the height as needed
     marginRight: s(8), // Adjust the margin as needed
-    aspectRatio: 16 / 9,
+    aspectRatio: 1,
   },
   container: {
     flexDirection: 'row',
@@ -211,7 +210,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: s(3),
     lineHeight: s(18),
     color: theme.colors.white,
-    fontSize: s(theme.fontSizes.base - 2),
+    fontSize: fs(theme.fontSizes.base - 2),
     ...theme.fontWeights.medium,
   },
 }));

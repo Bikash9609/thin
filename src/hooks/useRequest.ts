@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { request, RequestOptions } from '../axios'; // Import your request function
 import AsyncStorageUtils from '../helpers/asyncStorage';
 
-interface UseRequestOptions<T> extends RequestOptions {
+export interface UseRequestOptions<T> extends RequestOptions {
   initialData?: T;
   onSuccess?: (data: T) => void;
   cacheTime?: number; // Cache time in milliseconds

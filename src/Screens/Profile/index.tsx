@@ -1,5 +1,5 @@
 import { makeStyles } from '@rneui/themed';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -14,13 +14,12 @@ import { s } from 'react-native-size-matters';
 import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import useRequest from '../../hooks/useRequest';
 import LottieView from 'lottie-react-native';
 import Button from '../../components/UI';
 import useMutation from '../../hooks/useMutation';
 import LinearProgressGeneric from '../../components/LinearProgress';
-import moment from 'moment';
 import { renderMetaText } from '../../utils';
+import useInfiniteQuery from '../../hooks/useInfiniteQuery';
 
 type Item = {
   uuid: string;
@@ -37,19 +36,23 @@ const ProfileScreen: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const ownPostsQuery = useRequest<Item[]>({
+  const ownPostsQuery = useMutation<Item[]>({
     method: 'get',
     url: '/posts/own',
   });
 
+  const [data, { fetchMore, hasMore, loading, refreshData, setData }] =
+    useInfiniteQuery(
+      page => ownPostsQuery.mutate(undefined, { params: { page } }),
+      true,
+    );
+
   const { mutate, isLoading } = useMutation({
     method: 'delete',
     url: `/post/${selectedItem?.uuid}`,
-    onSuccess(data) {
-      const updatedItems = ownPostsQuery.data!.filter(
-        i => i.uuid !== selectedItem?.uuid,
-      );
-      ownPostsQuery.setData(updatedItems);
+    onSuccess() {
+      const updatedItems = data.filter(i => i.uuid !== selectedItem?.uuid);
+      setData(updatedItems);
       setSelectedItem(null);
       setIsModalVisible(false);
     },
@@ -104,36 +107,35 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    ownPostsQuery.setData([]);
-    ownPostsQuery.retry();
+    if (!loading) refreshData();
   };
 
   return (
     <View style={styles.container}>
-      {ownPostsQuery.data && ownPostsQuery.data.length > 0 ? (
+      {data.length > 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={ownPostsQuery.data}
+          data={data}
           renderItem={renderItem}
-          keyExtractor={item => item.uuid.toString()}
+          keyExtractor={item => item.uuid?.toString?.()}
           stickyHeaderIndices={[0]}
           ListHeaderComponent={() => (
             <Header onAddNewContent={() => navigate('AddStory')} />
           )}
           refreshControl={
-            <RefreshControl
-              refreshing={!!ownPostsQuery.isLoading}
-              onRefresh={handleRefresh}
-            />
+            <RefreshControl refreshing={!!loading} onRefresh={handleRefresh} />
           }
+          onEndReached={() => {
+            if (hasMore && !loading) fetchMore();
+          }}
         />
       ) : (
         <>
           <Header
             onAddNewContent={() => navigate('AddStory')}
-            isLoading={ownPostsQuery.isLoading}
+            isLoading={loading}
           />
-          {ownPostsQuery.isLoading ? (
+          {loading ? (
             <View style={styles.centeredContent}>
               <LottieView
                 source={require('../../assets/lottie/2.json')} // Use require for local assets

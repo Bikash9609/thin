@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { uniqBy } from '../helpers/arrays';
 
-type FetchFunction<T> = (page: number) => Promise<T[]>;
+type FetchFunction<T> = (page: number) => Promise<T[] | undefined>;
 
 type Response<T> = [
   T[],
@@ -10,9 +10,13 @@ type Response<T> = [
     hasMore: boolean;
     fetchMore: () => void;
     refreshData: () => void;
+    setData: React.Dispatch<React.SetStateAction<T[]>>;
   },
 ];
-function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
+function useInfiniteQuery<T>(
+  fetchData: FetchFunction<T>,
+  withoutAdditionalScreen?: boolean,
+): Response<T> {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -44,18 +48,26 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
       try {
         setFetchedPages(prev => [...prev, page as number]);
         const response = await fetchData(page);
-        const hasMoreItem = response?.length > 0;
+        const hasMoreItem = !!(response && response?.length > 0);
         setHasMore(hasMoreItem);
-        setData(prevData =>
-          !hasMoreItem
-            ? [...prevData, { noItemScreen: true } as any].filter(
-                item => !(item as any).loadingScreen,
-              )
-            : uniqBy(
-                [...prevData, ...response],
-                (item: any) => item.uuid,
-              ).filter(item => !(item as any).loadingScreen),
-        );
+        if (!withoutAdditionalScreen) {
+          setData(prevData =>
+            !hasMoreItem
+              ? [...prevData, { noItemScreen: true } as any].filter(
+                  item => !(item as any).loadingScreen,
+                )
+              : uniqBy(
+                  [...prevData, ...response!],
+                  (item: any) => item.uuid,
+                ).filter(item => !(item as any).loadingScreen),
+          );
+        } else {
+          setData(prevData =>
+            !hasMoreItem
+              ? [...prevData]
+              : uniqBy([...prevData, ...response!], (item: any) => item.uuid),
+          );
+        }
         setLoading(false);
         return; // If successful, exit the function
       } catch (error) {
@@ -75,7 +87,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   }, [hasMore, loading, data, fetchedPages]);
 
   useEffect(() => {
-    if (!error && !loading) {
+    if (!error && !loading && hasMore) {
       if (page === 1) {
         setData([]);
         setHasMore(true);
@@ -95,7 +107,7 @@ function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   };
 
   const values: Response<T> = useMemo(() => {
-    return [data, { loading, hasMore, fetchMore, refreshData }];
+    return [data, { loading, hasMore, fetchMore, refreshData, setData }];
   }, [data, loading, hasMore]);
 
   return values;

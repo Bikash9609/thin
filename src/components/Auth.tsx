@@ -26,6 +26,7 @@ import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
 import { useAuth } from '../context/AuthProvider';
 import Snackbar from 'react-native-snackbar';
+import { fs } from '../utils/font';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -222,18 +223,11 @@ const useStyles = makeStyles(theme => ({
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.2)',
   },
-  headerText: {
-    color: 'white',
-    textAlign: 'left',
-    fontWeight: '700',
-    fontSize: 29,
-    marginTop: 10,
-  },
   heroText: {
     textAlign: 'center',
     color: 'white',
     marginBottom: 10,
-    fontSize: s(theme.fontSizes.lg),
+    fontSize: fs(theme.fontSizes.lg),
     ...theme.fontWeights.extraBold,
   },
   heroSub: {
@@ -263,13 +257,13 @@ const useStyles = makeStyles(theme => ({
   reminderTerms: {
     textAlign: 'center',
     color: 'white',
-    fontSize: s(theme.fontSizes.xs - 3),
+    fontSize: fs(theme.fontSizes.xs - 3),
     ...theme.fontWeights.medium,
   },
   link: {
     color: theme.colors.blue[50], // Or any color you want for the links
     textDecorationLine: 'underline',
-    fontSize: s(theme.fontSizes.xs - 3),
+    fontSize: fs(theme.fontSizes.xs - 3),
     ...theme.fontWeights.medium,
   },
 }));
