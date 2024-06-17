@@ -204,11 +204,15 @@ const NewsItem: React.FC<NewsItemProps> = ({
               <Text
                 style={styles.title}
                 numberOfLines={3}
+                maxFontSizeMultiplier={1}
                 onPress={handleOpenLink(link)}>
                 {title}
               </Text>
               {attributeKeyword && (
-                <Text style={styles.summary} numberOfLines={2}>
+                <Text
+                  style={styles.summary}
+                  numberOfLines={2}
+                  maxFontSizeMultiplier={1.05}>
                   {attributeKeyword}
                 </Text>
               )}
@@ -222,7 +226,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     color="#808080"
                     style={styles.contentIcon}
                   />
-                  <Text style={styles.contentMetaText}>{author}</Text>
+                  <Text
+                    maxFontSizeMultiplier={1}
+                    style={styles.contentMetaText}>
+                    {author}
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -234,13 +242,17 @@ const NewsItem: React.FC<NewsItemProps> = ({
                     color="#808080"
                     style={styles.contentIcon}
                   />
-                  <Text style={styles.contentMetaText}>
+                  <Text
+                    maxFontSizeMultiplier={1}
+                    style={styles.contentMetaText}>
                     {renderMetaText(datePublished)}
                   </Text>
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.contentInfoText}>{infoText}</Text>
+              <Text style={styles.contentInfoText} maxFontSizeMultiplier={1}>
+                {infoText}
+              </Text>
             </View>
           </Pressable>
         </ScrollView>
@@ -268,6 +280,7 @@ const NewsItem: React.FC<NewsItemProps> = ({
                 <Text
                   style={styles.footerText}
                   numberOfLines={2}
+                  maxFontSizeMultiplier={1.1}
                   onPress={handleOpenLink(link)}>
                   {subtitle}
                 </Text>
@@ -406,8 +419,9 @@ const useStyles = makeStyles(theme => ({
     maxHeight: vs(225),
   },
   contentInfoText: {
-    lineHeight: scale(20),
+    lineHeight: scale(21),
     marginBottom: scale(10),
+    paddingBottom: scale(10),
     width: '100%',
     fontSize: fs(theme.fontSizes.sm),
     color: theme.text.dark.black,

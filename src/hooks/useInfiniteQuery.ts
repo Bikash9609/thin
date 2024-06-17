@@ -48,14 +48,20 @@ function useInfiniteQuery<T>(
       try {
         setFetchedPages(prev => [...prev, page as number]);
         const response = await fetchData(page);
-        const hasMoreItem = !!(response && response?.length > 0);
+        const hasMoreItem = !!(
+          response &&
+          response?.length > 0 &&
+          response.length >= (__DEV__ ? 5 : 20)
+        );
         setHasMore(hasMoreItem);
         if (!withoutAdditionalScreen) {
           setData(prevData =>
             !hasMoreItem
-              ? [...prevData, { noItemScreen: true } as any].filter(
-                  item => !(item as any).loadingScreen,
-                )
+              ? [
+                  ...prevData,
+                  ...(response ?? []),
+                  { noItemScreen: true } as any,
+                ].filter(item => !(item as any).loadingScreen)
               : uniqBy(
                   [...prevData, ...response!],
                   (item: any) => item.uuid,
@@ -64,7 +70,7 @@ function useInfiniteQuery<T>(
         } else {
           setData(prevData =>
             !hasMoreItem
-              ? [...prevData]
+              ? [...prevData, ...(response ?? [])]
               : uniqBy([...prevData, ...response!], (item: any) => item.uuid),
           );
         }

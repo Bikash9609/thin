@@ -10,7 +10,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import { s } from 'react-native-size-matters';
+import { s, scale } from 'react-native-size-matters';
 import Header from './Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +20,7 @@ import useMutation from '../../hooks/useMutation';
 import LinearProgressGeneric from '../../components/LinearProgress';
 import { renderMetaText } from '../../utils';
 import useInfiniteQuery from '../../hooks/useInfiniteQuery';
+import Stack from '../../components/Stack';
 
 type Item = {
   uuid: string;
@@ -110,6 +111,12 @@ const ProfileScreen: React.FC = () => {
     if (!loading) refreshData();
   };
 
+  const handleLoaderMore = () => {
+    if (!loading && hasMore) {
+      fetchMore();
+    }
+  };
+
   return (
     <View style={styles.container}>
       {data.length > 0 ? (
@@ -120,14 +127,32 @@ const ProfileScreen: React.FC = () => {
           keyExtractor={item => item.uuid?.toString?.()}
           stickyHeaderIndices={[0]}
           ListHeaderComponent={() => (
-            <Header onAddNewContent={() => navigate('AddStory')} />
+            <Header
+              onAddNewContent={() => navigate('AddStory')}
+              isLoading={loading || isLoading}
+            />
           )}
+          ListFooterComponent={() =>
+            hasMore && (
+              <Stack
+                direction="row"
+                alignI="center"
+                justifyC="center"
+                mt={scale(10)}>
+                {!loading && (
+                  <Button
+                    title="Load more"
+                    disabled={loading}
+                    onPress={handleLoaderMore}
+                    style={{ width: '100%' }}
+                  />
+                )}
+              </Stack>
+            )
+          }
           refreshControl={
             <RefreshControl refreshing={!!loading} onRefresh={handleRefresh} />
           }
-          onEndReached={() => {
-            if (hasMore && !loading) fetchMore();
-          }}
         />
       ) : (
         <>

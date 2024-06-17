@@ -4,13 +4,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './src/Navigator';
 import AuthScreen from './src/components/Auth';
 import ErrorBoundary from './src/components/ErrorBoundary';
-import useFirebasePushNotifications from './src/hooks/useFcmToken';
 import useCheckForUpdates from './src/hooks/useInAppUpdate';
 import { AppThemeProvider } from './AppThemeProvider';
 import useHideSplashScreen from './src/hooks/useHideSplashScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/AuthProvider';
 import useInternetStatus from './src/hooks/useInternetStatus';
+import { Text } from '@rneui/themed';
 
 // TODO: need to add Loading screen
 // TODO: add internal linking for the app
@@ -19,6 +19,10 @@ import useInternetStatus from './src/hooks/useInternetStatus';
 // TODO: throw snackbar error alerts on refresh, error
 
 // Thin: Rapid news
+
+Text.defaultProps = {
+  maxFontSizeMultiplier: 1.2,
+};
 
 export default function App() {
   useInternetStatus();
