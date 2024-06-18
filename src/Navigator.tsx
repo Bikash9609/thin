@@ -1,4 +1,4 @@
-import { RouteProp } from '@react-navigation/native';
+import { LinkingOptions, RouteProp } from '@react-navigation/native';
 import {
   NativeStackNavigationProp,
   createNativeStackNavigator,
@@ -25,8 +25,23 @@ const Stack =
       | 'IntroductionScreen'
       | 'AuthorSignupScreen'
       | 'NewsItemScreen'
+      | 'PublicNewsItemScreen'
     >
   >();
+
+export const linking: LinkingOptions<ScreensParamsList> = {
+  prefixes: ['com.thin://', 'https://thin.maarkar.in'],
+  config: {
+    screens: {
+      PublicNewsItemScreen: {
+        path: 'story',
+        parse: {
+          uuid: (uuid: string) => `${uuid}`, // ensuring uuid is treated as a string
+        },
+      },
+    },
+  },
+};
 
 export interface PageProps<T extends keyof ScreensParamsList> {
   // T is one of Home|PasswordAdd
@@ -87,6 +102,21 @@ function StackNavigator() {
               onBackPress={() =>
                 canGoBack() ? goBack() : navigate('ProfileScreen')
               }
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="PublicNewsItemScreen"
+        component={NewsItemScreen}
+        options={{
+          headerBackVisible: true,
+          headerShown: true,
+          header: ({ navigation: { canGoBack, goBack, navigate } }) => (
+            <GenericAppbar
+              height="sm"
+              title="Home"
+              onBackPress={() => (canGoBack() ? goBack() : navigate('Home'))}
             />
           ),
         }}

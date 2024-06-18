@@ -1,21 +1,32 @@
 import { makeStyles } from '@rneui/themed';
 import React from 'react';
-import { Pressable, StyleProp, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleProp,
+  Text,
+  View,
+} from 'react-native';
 import { s } from 'react-native-size-matters';
 
 interface Props {
   disabled?: boolean;
+  loading?: boolean;
   onPress?: () => void;
   title: string;
   style?: StyleProp<any>;
 }
 
-function Button({ disabled, onPress, title, style }: Props) {
+function Button({ disabled, loading, onPress, title, style }: Props) {
   const styles = useStyles();
   return (
-    <Pressable disabled={disabled} onPress={onPress}>
+    <Pressable disabled={disabled || loading} onPress={onPress}>
       <View style={[styles.footerBtn, style]}>
-        <Text style={styles.footerBtnTitle}>{title}</Text>
+        {loading ? (
+          <ActivityIndicator style={styles.loadingIndicator} color="#fff" />
+        ) : (
+          <Text style={styles.footerBtnTitle}>{title}</Text>
+        )}
       </View>
     </Pressable>
   );
@@ -37,6 +48,10 @@ const useStyles = makeStyles(theme => ({
     color: theme.text.light.white,
     marginLeft: s(3),
     fontSize: s(theme.fontSizes.base - 3),
+    lineHeight: s(14),
     ...theme.fontWeights.bold,
+  },
+  loadingIndicator: {
+    height: s(14),
   },
 }));

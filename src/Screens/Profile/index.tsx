@@ -9,6 +9,7 @@ import {
   Pressable,
   Alert,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { s, scale } from 'react-native-size-matters';
 import Header from './Header';
@@ -44,7 +45,10 @@ const ProfileScreen: React.FC = () => {
 
   const [data, { fetchMore, hasMore, loading, refreshData, setData }] =
     useInfiniteQuery(
-      page => ownPostsQuery.mutate(undefined, { params: { page } }),
+      page =>
+        ownPostsQuery.mutate(undefined, { params: { page } }) as Promise<
+          Item[]
+        >,
       true,
     );
 
@@ -59,33 +63,37 @@ const ProfileScreen: React.FC = () => {
     },
   });
 
-  const renderItem = ({ item }: { item: Item }) => (
-    <Pressable onPress={() => navigate(`NewsItemScreen`, { uuid: item.uuid })}>
-      <View style={styles.itemContainer}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} />
-        <View style={styles.itemContent}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.description} numberOfLines={2}>
-            {item.infoText}
-          </Text>
+  const renderItem = ({ item }: { item: Item }) =>
+    item.uuid ? (
+      <Pressable
+        onPress={() => navigate(`NewsItemScreen`, { uuid: item.uuid })}>
+        <View style={styles.itemContainer}>
+          <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          <View style={styles.itemContent}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.description} numberOfLines={2}>
+              {item.infoText}
+            </Text>
 
-          <View style={styles.contentFooterBar}>
-            <Text
-              style={
-                styles.lastPublished
-              }>{`Published ${renderMetaText(item.datePublished as unknown as string)}`}</Text>
-            <Ionicons
-              onPress={() => handleDeleteItem(item)}
-              name="trash-outline"
-              size={s(18)}
-              color="black"
-              style={styles.deleteButtonIcon}
-            />
+            <View style={styles.contentFooterBar}>
+              <Text
+                style={
+                  styles.lastPublished
+                }>{`Published ${renderMetaText(item.datePublished as unknown as string)}`}</Text>
+              <Ionicons
+                onPress={() => handleDeleteItem(item)}
+                name="trash-outline"
+                size={s(18)}
+                color="black"
+                style={styles.deleteButtonIcon}
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </Pressable>
-  );
+      </Pressable>
+    ) : (
+      <View />
+    );
 
   const handleDeleteItem = (item: Item) => {
     setSelectedItem(item);
@@ -117,6 +125,8 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
+  console.log(data.length);
+
   return (
     <View style={styles.container}>
       {data.length > 0 ? (
@@ -133,21 +143,22 @@ const ProfileScreen: React.FC = () => {
             />
           )}
           ListFooterComponent={() =>
-            hasMore && (
+            hasMore ? (
               <Stack
                 direction="row"
                 alignI="center"
                 justifyC="center"
                 mt={scale(10)}>
-                {!loading && (
-                  <Button
-                    title="Load more"
-                    disabled={loading}
-                    onPress={handleLoaderMore}
-                    style={{ width: '100%' }}
-                  />
-                )}
+                <Button
+                  loading={loading}
+                  title="Load more"
+                  disabled={loading}
+                  onPress={handleLoaderMore}
+                  style={{ width: '100%', marginBottom: s(30) }}
+                />
               </Stack>
+            ) : (
+              <Text style={styles.noMoreItems}>The End! 😃 </Text>
             )
           }
           refreshControl={
@@ -170,7 +181,14 @@ const ProfileScreen: React.FC = () => {
               />
             </View>
           ) : (
-            <View style={styles.noItemsContainer}>
+            <ScrollView
+              refreshControl={
+                <RefreshControl
+                  refreshing={!!loading}
+                  onRefresh={handleRefresh}
+                />
+              }
+              contentContainerStyle={styles.noItemsContainer}>
               <LottieView
                 source={require('../../assets/lottie/4.json')} // Use require for local assets
                 autoPlay={true}
@@ -180,7 +198,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.noItemsText}>
                 No posts found. Add some stories and get upvotes!
               </Text>
-            </View>
+            </ScrollView>
           )}
         </>
       )}
@@ -226,13 +244,13 @@ const useStyles = makeStyles(theme => ({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: s(10),
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginRight: 10,
+    width: s(100),
+    height: s(100),
+    borderRadius: s(10),
+    marginRight: s(10),
   },
   itemContent: {
     flex: 1,
@@ -318,6 +336,18 @@ const useStyles = makeStyles(theme => ({
     // Adjust width and height as needed, avoid full-screen stretching
     width: s(350), // Example width, adjust based on your Lottie animation size
     height: s(300), // Example height, adjust based on your Lottie animation size
+  },
+
+  noMoreItems: {
+    color: theme.text.dark.dimGray,
+    textAlign: 'center',
+    fontSize: s(theme.fontSizes.base),
+    ...theme.fontWeights.semiBold,
+    marginVertical: s(10),
+    marginBottom: s(30),
+    paddingTop: s(10),
+    borderTopWidth: theme.border.size.hairline,
+    borderTopColor: theme.border.color.lightGray,
   },
 }));
 

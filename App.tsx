@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import Navigator from './src/Navigator';
+import Navigator, { linking } from './src/Navigator';
 import AuthScreen from './src/components/Auth';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import useCheckForUpdates from './src/hooks/useInAppUpdate';
@@ -30,7 +30,7 @@ export default function App() {
   useCheckForUpdates();
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <SafeAreaProvider>
         <AppThemeProvider>
           <ErrorBoundary>

@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import useRequest from '../../hooks/useRequest';
-import FullScreenLoader from '../../components/FullScreenLoader';
 import NewsItem from '../Home/NewsItem';
 import { PostResponse } from '../Home';
 import { PageProps } from '../../Navigator';
 import LottieView from 'lottie-react-native';
 import { s } from 'react-native-size-matters';
-import { LinearProgress } from '@rneui/themed';
 import LinearProgressGeneric from '../../components/LinearProgress';
 
-function NewsItemScreen({ route, navigation }: PageProps<'NewsItemScreen'>) {
+function NewsItemScreen({
+  route,
+}: PageProps<'NewsItemScreen'> | PageProps<'PublicNewsItemScreen'>) {
   const {
     data: item,
     isLoading,
