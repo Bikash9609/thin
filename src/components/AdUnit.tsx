@@ -14,7 +14,7 @@ interface AdInterstitialProps {
 //  Replace with ca-app-pub-9791957935297347/1063892275
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : TestIds.BANNER ?? 'ca-app-pub-9791957935297347~3773019932';
+  : 'ca-app-pub-9791957935297347~3773019932';
 
 export const BannerAdUnit: React.FC<AdInterstitialProps> = ({ style }) => {
   const bannerRef = useRef<BannerAd>(null);
