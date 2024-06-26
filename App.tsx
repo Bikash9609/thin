@@ -1,5 +1,6 @@
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import mobileAds, { MaxAdContentRating } from 'react-native-google-mobile-ads';
 
 import Navigator, { linking } from './src/Navigator';
 import AuthScreen from './src/components/Auth';
@@ -12,13 +13,15 @@ import { AuthProvider } from './src/context/AuthProvider';
 import useInternetStatus from './src/hooks/useInternetStatus';
 import { Text } from '@rneui/themed';
 
-// TODO: need to add Loading screen
-// TODO: add internal linking for the app
-// TODO: need to add Error boundary
-// TODO: need to add navbar with logo of app - future
-// TODO: throw snackbar error alerts on refresh, error
-
-// Thin: Rapid news
+mobileAds()
+  .setRequestConfiguration({
+    // An array of test device IDs to allow.
+    testDeviceIdentifiers: ['EMULATOR'],
+  })
+  .then(() => {
+    console.log('Admob initialized');
+  })
+  .catch(console.error);
 
 Text.defaultProps = {
   maxFontSizeMultiplier: 1.2,

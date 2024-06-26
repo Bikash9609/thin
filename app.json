@@ -1,4 +1,7 @@
 {
   "name": "Thin",
-  "displayName": "Thin"
+  "displayName": "Thin",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-9791957935297347~3773019932"
+  }
 }

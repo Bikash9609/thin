@@ -64,7 +64,22 @@ function useInfiniteQuery<T>(
                   { noItemScreen: true } as any,
                 ]
               : uniqBy([...prevData, ...response], (item: any) => item.uuid);
-          return newData.filter(item => !(item as any).loadingScreen);
+
+          // Filter out loadingScreen items
+          const filteredData = newData.filter(
+            item => !(item as any).loadingScreen || (item as any).adsScreen,
+          );
+
+          // Add adsScreen: true after every 5th item
+          const finalData = [];
+          for (let i = 0; i < filteredData.length; i++) {
+            finalData.push(filteredData[i]);
+            if ((i + 1) % 5 === 0) {
+              finalData.push({ adsScreen: true } as any);
+            }
+          }
+
+          return finalData;
         });
         setLoading(false);
         return; // If successful, exit the function

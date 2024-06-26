@@ -8,6 +8,7 @@ import LoadingOfPosts from '../../components/LoadingOfPosts';
 import useCarouselGuide from './useCarouselGuide';
 import useCarouselPrefetcher from './useCarousel';
 import { HomeProvider, useHome } from '../../context/HomeProvider';
+import AdUnit from './AdUnit';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -75,6 +76,9 @@ const Main = () => {
   const renderNewsItem = useCallback(
     ({ item }: { item: PostResponse }) => {
       if (!item.uuid) {
+        if ((item as any).adsScreen) {
+          return <AdUnit />;
+        }
         if ((item as any).noItemScreen) {
           return <EndOfPosts refreshData={refreshData} />;
         }
@@ -115,14 +119,15 @@ const Main = () => {
         ref={carouselRef}
         data={data}
         renderItem={renderNewsItem}
-        keyExtractor={item => {
-          if (!(item as any).uuid) return Object.keys(item)[0];
+        keyExtractor={(item, index) => {
+          if (!(item as any).uuid)
+            return `${Object.keys(item)[0]}-default-${index}`;
           return item.uuid;
         }}
         sliderWidth={SCREEN_WIDTH} // Set sliderWidth instead of sliderHeight for horizontal scrolling
         itemWidth={SCREEN_WIDTH} // Set itemWidth instead of itemHeight for horizontal scrolling
         vertical={false} // Set vertical to false for horizontal scrolling
-        swipeThreshold={10}
+        swipeThreshold={0.05}
         scrollEnabled
         onEndReached={fetchMore}
         onEndReachedThreshold={0.5}
