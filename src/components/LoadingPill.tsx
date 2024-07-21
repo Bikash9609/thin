@@ -67,7 +67,7 @@ export default LoadingPill;
 const useStyles = makeStyles(theme => ({
   mainContainer: {
     position: 'absolute',
-    zIndex: theme.zIndex.stickyHeader + 10,
+    zIndex: theme.zIndex.stickyHeader + 1000,
     top: s(8),
     left: 0,
     right: 0,

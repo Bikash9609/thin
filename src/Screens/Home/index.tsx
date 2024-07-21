@@ -54,14 +54,6 @@ const Main = () => {
     enabled: !loading && !!data.length,
   });
 
-  useCarouselPrefetcher({
-    enabled: hasMore,
-    viewedItems: viewedItems.length,
-    isLoading: loading,
-    totalItems: data.length ?? 0,
-    onPrefetch: fetchMore,
-  });
-
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
       setCurrentIndex(slideIndex);
@@ -71,6 +63,18 @@ const Main = () => {
     [data, viewedItems],
   );
 
+  const onProgressChange = useCallback(
+    (offsetProgress: number, absoluteProgress: number) => {
+      const totalItems = data.length;
+      const currentPercentage = (absoluteProgress / totalItems) * 100;
+
+      if (currentPercentage >= 70 && !loading && hasMore) {
+        fetchMore();
+      }
+    },
+    [data, fetchMore],
+  );
+
   useEffect(() => {
     if (data?.[0] && !viewedItems.includes(data?.[0]?.uuid)) {
       handleItemViewed(0);
@@ -78,21 +82,29 @@ const Main = () => {
   }, [data]);
 
   const renderNewsItem = useCallback(
-    ({ item }: { item: PostResponse }) => {
+    ({ item, index }: { item: PostResponse; index: number }) => {
+      const keyExtractor = () => {
+        if (!(item as any).uuid)
+          return `${Object.keys(item)[0]}-default-${index}`;
+        return item.uuid;
+      };
+
+      const key = keyExtractor();
       if (!item.uuid) {
         if ((item as any).adsScreen) {
-          return <AdUnit />;
+          return <AdUnit key={key} />;
         }
         if ((item as any).noItemScreen) {
-          return <EndOfPosts refreshData={refreshData} />;
+          return <EndOfPosts refreshData={refreshData} key={key} />;
         }
         if ((item as any).loadingScreen) {
-          return <LoadingOfPosts />;
+          return <LoadingOfPosts key={key} />;
         }
       }
 
       return (
         <NewsItem
+          key={key}
           uuid={item.uuid}
           author={item.author_name}
           datePublished={item.datePublished}
@@ -121,38 +133,13 @@ const Main = () => {
 
   return (
     <View style={styles.container}>
+      <LoadingPill isLoading={loading} message="Fetching more..." />
       <StackCardsCarousel
         data={data}
-        renderItem={info => renderNewsItem({ item: info.item })}
-      />
-    </View>
-  );
-
-  return (
-    <View style={styles.container}>
-      <LoadingPill
-        isLoading={loading && isAlmostViewed(totalViewed, data.length)}
-        message="Fetching..."
-      />
-      <Carousel
-        ref={carouselRef}
-        data={data}
         renderItem={renderNewsItem}
-        keyExtractor={(item, index) => {
-          if (!(item as any).uuid)
-            return `${Object.keys(item)[0]}-default-${index}`;
-          return item.uuid;
-        }}
-        sliderWidth={SCREEN_WIDTH} // Set sliderWidth instead of sliderHeight for horizontal scrolling
-        itemWidth={SCREEN_WIDTH} // Set itemWidth instead of itemHeight for horizontal scrolling
-        vertical={false} // Set vertical to false for horizontal scrolling
-        swipeThreshold={0.05}
-        scrollEnabled
-        onEndReached={fetchMore}
-        onEndReachedThreshold={0.5}
         onSnapToItem={handleItemViewed}
-        activeSlideOffset={0}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 3 }}
+        onProgressChange={onProgressChange}
+        ref={carouselRef as any}
       />
     </View>
   );

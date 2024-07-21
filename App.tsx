@@ -13,7 +13,7 @@ import useInternetStatus from './src/hooks/useInternetStatus';
 import { Text } from '@rneui/themed';
 import { initialize } from 'react-native-clarity';
 
-initialize('myzwwddjj6');
+if (!__DEV__) initialize('myzwwddjj6');
 
 mobileAds()
   .setRequestConfiguration({
@@ -35,6 +35,7 @@ export default function App() {
   useCheckForUpdates();
 
   return (
+    // <GestureHandlerRootView>
     <NavigationContainer linking={linking}>
       <SafeAreaProvider>
         <AppThemeProvider>
@@ -46,5 +47,6 @@ export default function App() {
         </AppThemeProvider>
       </SafeAreaProvider>
     </NavigationContainer>
+    // </GestureHandlerRootView>
   );
 }

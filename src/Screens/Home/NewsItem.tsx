@@ -29,6 +29,7 @@ import Stack from '../../components/Stack';
 import SheetOptions, { Option } from '../../components/SheetOptions';
 import useReport from '../../hooks/useReport';
 import { fs } from '../../utils/font';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 export interface NewsItemProps {
@@ -90,10 +91,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
   isInView,
 }) => {
   const scrollViewRef = useRef<ScrollView | null>(null);
+  const { bottom } = useSafeAreaInsets();
   const { reportPost } = useReport({ postuuid: uuid });
   const { toggleAppBarVisibility, isAppBarVisible } = useAppBar();
   const { theme } = useTheme();
-  const styles = useStyles();
+  const styles = useStyles({ bottom });
   const { handleShare, viewRef, isLoading } = useShare({ storyUuid: uuid });
   const { handleAction, state, activeUserValue, loading } = useCardActions(
     {
@@ -356,16 +358,23 @@ const NewsItem: React.FC<NewsItemProps> = ({
   );
 };
 
-const useStyles = makeStyles(theme => ({
+type UseStylesProps = {
+  bottom: number;
+};
+
+const useStyles = makeStyles((theme, props: UseStylesProps) => ({
   container: {
     flex: 1,
     backgroundColor: '#fff',
     height: '100%',
+    shadowOffset: { width: 10, height: 20 },
+    shadowColor: 'black',
+    shadowOpacity: 1,
   },
   item: {
     flex: 1,
     backgroundColor: '#fffffc',
-    borderRadius: scale(10),
+    borderRadius: scale(30),
     shadowColor: '#000',
     shadowRadius: scale(10),
   },
@@ -473,7 +482,7 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: props.bottom + s(22) ?? 0,
   },
   footerBg: {
     height: '100%',
