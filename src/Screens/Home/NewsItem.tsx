@@ -482,7 +482,7 @@ const useStyles = makeStyles((theme, props: UseStylesProps) => ({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: props.bottom + s(22) ?? 0,
+    bottom: props.bottom ?? 0,
   },
   footerBg: {
     height: '100%',
@@ -502,7 +502,7 @@ const useStyles = makeStyles((theme, props: UseStylesProps) => ({
   },
   footerText: {
     width: '100%',
-    paddingTop: scale(3),
+    // paddingTop: scale(3),
     fontSize: fs(theme.fontSizes.xs - 1),
     color: theme.text.light.lightGray,
     textAlign: 'center',

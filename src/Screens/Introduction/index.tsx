@@ -2,7 +2,6 @@ import { makeStyles } from '@rneui/themed';
 import React, { useRef, useState } from 'react';
 import { View, Text, Image, Dimensions } from 'react-native';
 import { s } from 'react-native-size-matters';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface Feature {
@@ -38,7 +37,7 @@ const features: Feature[] = [
 
 const IntroductionScreen: React.FC = () => {
   const styles = useStyles();
-  const carouselRef = useRef<Carousel<Feature>>(null);
+  const carouselRef = useRef<any>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleNextSlide = () => {
@@ -67,7 +66,7 @@ const IntroductionScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Carousel
+      {/* <Carousel
         ref={carouselRef}
         data={features}
         renderItem={renderItem}
@@ -83,7 +82,7 @@ const IntroductionScreen: React.FC = () => {
         inactiveDotStyle={styles.dotStyle}
         inactiveDotOpacity={0.4}
         inactiveDotScale={0.6}
-      />
+      /> */}
     </View>
   );
 };

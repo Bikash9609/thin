@@ -8,6 +8,7 @@ type ScreensParamsList = {
   AuthorSignupScreen: undefined;
   NewsItemScreen: { uuid: string };
   PublicNewsItemScreen: { uuid: string };
+  Settings: undefined;
 };
 
 type Author = {

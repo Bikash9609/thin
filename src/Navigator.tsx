@@ -5,12 +5,9 @@ import {
 } from '@react-navigation/native-stack';
 import { PropsWithChildren } from 'react';
 import Home from './Screens/Home';
-import AddStoryScreen from './Screens/AddStory';
 import Header from './components/Header';
 import { AppBarProvider, useAppBar } from './context/AppBarProvider';
-import ProfileScreen from './Screens/Profile';
 import IntroductionScreen from './Screens/Introduction/index';
-import AuthorSignupScreen from './Screens/AuthorSignup';
 import NewsItemScreen from './Screens/NewsItem';
 import GenericAppbar from './components/GenericAppbar';
 import { Linking } from 'react-native';
@@ -18,6 +15,7 @@ import messaging from '@react-native-firebase/messaging';
 import { convertToNestedObject } from './helpers/objects';
 import { useAuth } from './context/AuthProvider';
 import AuthScreen from './Screens/Auth';
+import SettingsScreen from './Screens/Settings';
 
 const Stack =
   createNativeStackNavigator<
@@ -31,6 +29,7 @@ const Stack =
       | 'NewsItemScreen'
       | 'PublicNewsItemScreen'
       | 'Auth'
+      | 'Settings'
     >
   >();
 
@@ -104,7 +103,7 @@ export interface PageProps<T extends keyof ScreensParamsList> {
 
 function StackNavigator() {
   const appBarProps = useAppBar();
-  const initialRouteName = 'Home';
+  const initialRouteName = 'Settings';
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
@@ -117,27 +116,17 @@ function StackNavigator() {
         }}
       />
       <Stack.Screen
-        name="AddStory"
-        component={AddStoryScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
+        name="Settings"
+        component={SettingsScreen}
         options={{
-          headerShown: false,
+          headerShown: true,
+          header: () => <Header fixed {...appBarProps} />,
         }}
       />
+
       <Stack.Screen
         name="IntroductionScreen"
         component={IntroductionScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="AuthorSignupScreen"
-        component={AuthorSignupScreen}
         options={{
           headerShown: false,
         }}

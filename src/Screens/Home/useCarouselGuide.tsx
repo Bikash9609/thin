@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import Carousel from 'react-native-snap-carousel';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PostResponse } from '.';
 import AsyncStorageUtils from '../../helpers/asyncStorage';
@@ -11,7 +10,7 @@ interface UseCarouselGuideProps {
 }
 
 function useCarouselGuide({ enabled }: UseCarouselGuideProps) {
-  const carouselRef = useRef<Carousel<PostResponse>>(null);
+  const carouselRef = useRef<any>(null);
   const [hasScrolled, setHasScrolled] = useState(false);
 
   const checkGuideStatus = async () => {

@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
 import NewsItem from './NewsItem';
 import AuthLoading from '../../components/AuthLoading';
 import EndOfPosts from '../../components/EndOfPosts';
 import LoadingOfPosts from '../../components/LoadingOfPosts';
 import useCarouselGuide from './useCarouselGuide';
-import useCarouselPrefetcher, { isAlmostViewed } from './useCarousel';
 import { HomeProvider, useHome } from '../../context/HomeProvider';
 import AdUnit from './AdUnit';
 import NoNewsItems from './NoNewsItems';
 import LoadingPill from '@/components/LoadingPill';
 import StackCardsCarousel from '@/components/StackCardCarousel';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export interface PostResponse {
   uuid: string;

@@ -74,7 +74,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     alignSelf: 'center',
-    width: s(130),
+    width: s(140),
     backgroundColor: theme.colors.dark[50],
     opacity: 0.8, // Adjust opacity for partial transparency
     justifyContent: 'center',

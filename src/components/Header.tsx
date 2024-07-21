@@ -32,12 +32,11 @@ const Header: React.FC<HeaderProps> = ({
   withoutBackdrop = false,
 }) => {
   const { navigate } = useNavigation() as any;
-  const { isAuthenticated, getUserInfo } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { theme } = useTheme();
   const styles = useStyles();
   const containerStyle = fixed ? styles.fixedContainer : styles.container;
   const shadowStyle = fixed ? styles.shadow : null;
-  const userInfo = getUserInfo();
 
   // Using useRef to keep a reference to the animated value
   const translateYAnim = useRef(new Animated.Value(0)).current;
@@ -88,6 +87,19 @@ const Header: React.FC<HeaderProps> = ({
 
           <Text style={styles.rightText}>Add</Text>
         </TouchableOpacity> */}
+
+        <TouchableOpacity
+          style={styles.personIconContainer}
+          onPress={() => {
+            navigate('Settings');
+            toggleAppBarVisibility();
+          }}>
+          <Ionicons
+            name="menu-outline"
+            size={s(31)}
+            color={theme.text.dark.black}
+          />
+        </TouchableOpacity>
 
         {/* <View style={styles.rightGroup}>
           <TouchableOpacity
@@ -151,7 +163,7 @@ const useStyles = makeStyles(theme => ({
   },
   fixedContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: s(4),
     paddingHorizontal: s(20),

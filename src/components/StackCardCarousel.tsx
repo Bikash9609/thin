@@ -13,6 +13,7 @@ import Carousel, {
 } from 'react-native-reanimated-carousel';
 
 import { PostResponse } from '@/Screens/Home';
+import { ms, s } from 'react-native-size-matters';
 
 const { height, width } = Dimensions.get('window');
 
@@ -36,7 +37,7 @@ type Props = Partial<
 const StackCardCarousel = React.forwardRef(
   ({ data, renderItem, ...rest }: Props, ref: any) => {
     const PAGE_WIDTH = width;
-    const PAGE_HEIGHT = height;
+    const PAGE_HEIGHT = height - ms(20);
     const directionAnim = useSharedValue<ArrowDirection>(
       ArrowDirection.IS_HORIZONTAL,
     );
