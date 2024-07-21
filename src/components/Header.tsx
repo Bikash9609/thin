@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({
           { transform: [{ translateY: translateYAnim }] },
         ]}>
         <Image source={require('../assets/icon.png')} style={styles.appIcon} />
-
+        {/* 
         <TouchableOpacity
           style={styles.rightContainer}
           onPress={() => {
@@ -87,13 +87,13 @@ const Header: React.FC<HeaderProps> = ({
           />
 
           <Text style={styles.rightText}>Add</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
-        <View style={styles.rightGroup}>
+        {/* <View style={styles.rightGroup}>
           <TouchableOpacity
             style={styles.personIconContainer}
             onPress={() => {
-              navigate('ProfileScreen');
+              // navigate('ProfileScreen');
               toggleAppBarVisibility();
             }}>
             {userInfo?.author?.avatarUrl ? (
@@ -110,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({
               />
             )}
           </TouchableOpacity>
-        </View>
+        </View> */}
       </Animated.View>
       {fixed && isAppBarVisible && !withoutBackdrop && (
         <Pressable
@@ -142,7 +142,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'lightgray',
@@ -151,7 +151,7 @@ const useStyles = makeStyles(theme => ({
   },
   fixedContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: s(4),
     paddingHorizontal: s(20),

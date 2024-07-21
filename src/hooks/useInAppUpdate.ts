@@ -3,38 +3,50 @@ import { Platform } from 'react-native';
 import SpInAppUpdates, {
   IAUUpdateKind,
   StartUpdateOptions,
+  IAUInstallStatus,
 } from 'sp-react-native-in-app-updates';
-import DeviceInfo from 'react-native-device-info';
 
-const inAppUpdates = new SpInAppUpdates(!!__DEV__); // Initialize SpInAppUpdates instance
+export const checkForUpdate = async () => {
+  const inAppUpdates = new SpInAppUpdates(__DEV__);
+  // curVersion is optional if you don't provide it will automatically take from the app using react-native-device-info
+  try {
+    if (Platform.OS === 'ios') {
+      return;
+    }
+    await inAppUpdates.checkNeedsUpdate().then(result => {
+      try {
+        if (result.shouldUpdate) {
+          let updateOptions: StartUpdateOptions = {};
+          if (Platform.OS === 'android') {
+            // android only, on iOS the user will be promped to go to your app store page
+            updateOptions = {
+              updateType: IAUUpdateKind.IMMEDIATE,
+            };
+          }
+          inAppUpdates.addStatusUpdateListener(downloadStatus => {
+            console.log('download status', downloadStatus);
+            if (downloadStatus.status === IAUInstallStatus.DOWNLOADED) {
+              console.log('downloaded');
+              inAppUpdates.installUpdate();
+              inAppUpdates.removeStatusUpdateListener(finalStatus => {
+                console.log('final status', finalStatus);
+              });
+            }
+          });
+          inAppUpdates.startUpdate(updateOptions);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const useCheckForUpdates = () => {
   useEffect(() => {
-    const checkForUpdates = async () => {
-      try {
-        const { shouldUpdate } = await inAppUpdates.checkNeedsUpdate({
-          curVersion: DeviceInfo.getVersion(), // App version
-        });
-        if (shouldUpdate) {
-          let updateOptions: StartUpdateOptions = {};
-          if (Platform.OS === 'android') {
-            updateOptions = {
-              updateType: IAUUpdateKind.FLEXIBLE,
-            };
-          }
-          await inAppUpdates.startUpdate(updateOptions);
-        }
-      } catch (error) {
-        console.error('Error checking for updates:', error);
-      }
-    };
-
-    checkForUpdates();
-
-    // Clean up any resources if needed
-    return () => {
-      // Cleanup logic here
-    };
+    checkForUpdate();
   }, []);
 
   return null; // You can modify this to return any necessary values or state

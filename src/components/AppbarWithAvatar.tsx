@@ -1,14 +1,11 @@
 import { makeStyles } from '@rneui/themed';
 import React from 'react';
-import { View, Image, StatusBar, Platform, Dimensions } from 'react-native';
+import { View, Image, Dimensions } from 'react-native';
 import { s } from 'react-native-size-matters';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../context/AuthProvider';
 
 const { width } = Dimensions.get('window');
 
 const AppbarWithAvatar: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
   const styles = useStyles();
 
   return (
@@ -17,19 +14,6 @@ const AppbarWithAvatar: React.FC = () => {
         <View style={styles.logoContainer}>
           <Image source={require('../assets/icon.png')} style={styles.logo} />
         </View>
-
-        {isAuthenticated() ? (
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: user?.user?.author?.avatarUrl }}
-              style={styles.avatar}
-            />
-          </View>
-        ) : (
-          <View style={styles.avatarContainer}>
-            <Icon name="person-circle-outline" size={s(30)} color="#000" />
-          </View>
-        )}
       </View>
     </View>
   );
@@ -52,7 +36,7 @@ const useStyles = makeStyles(theme => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: s(10),
   },
 
@@ -62,17 +46,6 @@ const useStyles = makeStyles(theme => ({
     width: s(30),
     height: s(30),
     resizeMode: 'contain',
-  },
-
-  avatarContainer: {
-    backgroundColor: theme.colors.blueGray[50],
-    borderRadius: s(30),
-  },
-
-  avatar: {
-    width: s(30),
-    height: s(30),
-    borderRadius: s(20),
   },
 }));
 

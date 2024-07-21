@@ -216,6 +216,11 @@ const NewsItem: React.FC<NewsItemProps> = ({
                   {attributeKeyword}
                 </Text>
               )}
+
+              <Text style={styles.contentInfoText} maxFontSizeMultiplier={1}>
+                {infoText}
+              </Text>
+
               <View style={styles.contentMetaInfo}>
                 <TouchableOpacity
                   onPress={handleOpenLink(website)}
@@ -249,10 +254,6 @@ const NewsItem: React.FC<NewsItemProps> = ({
                   </Text>
                 </TouchableOpacity>
               </View>
-
-              <Text style={styles.contentInfoText} maxFontSizeMultiplier={1}>
-                {infoText}
-              </Text>
             </View>
           </Pressable>
         </ScrollView>

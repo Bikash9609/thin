@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import useInfiniteQuery from '../hooks/useInfiniteQuery';
 import { PostResponse } from '../Screens/Home';
-import { request } from '../axios';
+import { request } from '../_axios';
 import useFirebasePushNotifications from '../hooks/useFcmToken';
 
 interface InViewContextProps {

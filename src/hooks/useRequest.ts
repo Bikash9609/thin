@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { request, RequestOptions } from '../axios'; // Import your request function
+import { request, RequestOptions } from '../_axios'; // Import your request function
 import AsyncStorageUtils from '../helpers/asyncStorage';
 
 export interface UseRequestOptions<T> extends RequestOptions {

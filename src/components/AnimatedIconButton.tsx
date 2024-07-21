@@ -1,3 +1,4 @@
+import { fs } from '@/utils/font';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   TouchableOpacity,
@@ -8,7 +9,7 @@ import {
   TextStyle,
   Pressable,
 } from 'react-native';
-import { scale } from 'react-native-size-matters';
+import { s, scale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 interface AnimatedIconButtonProps {
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   authorAttr: {
-    fontSize: 16,
+    fontSize: fs(14),
   },
 });
 

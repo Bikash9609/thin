@@ -1,9 +1,4 @@
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Dimensions,
@@ -18,23 +13,23 @@ import {
   GoogleSignin,
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
-import AsyncStorageUtils from '../helpers/asyncStorage';
-import { request } from '../axios';
-import config from '../config/config';
-import AuthLoading from './AuthLoading';
+import AsyncStorageUtils from '@/helpers/asyncStorage';
+import { request } from '../../_axios';
+import config from '@/config/config';
+import AuthLoading from '@/components/AuthLoading';
 import { s, vs } from 'react-native-size-matters';
 import { makeStyles } from '@rneui/themed';
-import { useAuth } from '../context/AuthProvider';
+import { useAuth } from '@/context/AuthProvider';
 import Snackbar from 'react-native-snackbar';
-import { fs } from '../utils/font';
+import { fs } from '@/utils/font';
+import { ScreenProps } from '@/Navigator';
 
-const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
 
 const webClientId =
   '130248553868-cprpo4t6s3sj2nq9lb8ggo97cpk9905l.apps.googleusercontent.com';
 
-const AuthScreen = ({ children }: PropsWithChildren) => {
+const AuthScreen = ({}: ScreenProps<'Auth'>) => {
   const styles = useStyles();
   const { login, logout, isAuthenticated, user } = useAuth();
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -54,6 +49,24 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     configureGoogleSignIn();
   }, []);
 
+  const verifyAuthStatusSilently = async () => {
+    try {
+      const res = await request<{ user: User }>({
+        method: 'get',
+        url: '/user-data',
+      });
+      if (!res.user) throw new Error('No token found');
+      setIsSignedIn(true);
+      await AsyncStorageUtils.setItem(config.userDataStorageKey, res.user);
+      return res;
+    } catch (error) {
+      console.log(error);
+      await AsyncStorageUtils.clearAll();
+      setIsSignedIn(false);
+      Alert.prompt('Error logging in');
+    }
+  };
+
   const fetchUserLoginToken = async (idToken: string) => {
     try {
       const res = await request<{ token: string; user: User }>({
@@ -65,6 +78,7 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
       // Call onSuccess callback with the token
       setIsSignedIn(true); // Store token in AsyncStorage
       await AsyncStorageUtils.setItem(config.tokenStorageKey, res.token);
+      await AsyncStorageUtils.setItem(config.userDataStorageKey, res.user);
       return res;
     } catch (error) {
       console.log(error);
@@ -114,16 +128,26 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
   }, [login, logout]);
 
   const fetchUserExistence = useCallback(async () => {
-    const session = await AsyncStorageUtils.getItem(config.tokenStorageKey);
-    if (session) {
+    try {
       setIsLoading(true);
-      login(session);
-      setIsSignedIn(true);
-      googleLoginSilent();
-    } else {
-      setTimeout(() => {
-        googleLogin();
-      }, 6000);
+      const session = await Promise.all([
+        AsyncStorageUtils.getItem(config.tokenStorageKey),
+        AsyncStorageUtils.getItem(config.userDataStorageKey),
+      ]);
+      if (session?.[0] && session?.[1]) {
+        login({ user: session[1], token: session[0] });
+        verifyAuthStatusSilently();
+        setIsSignedIn(true);
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+        setTimeout(() => {
+          googleLogin();
+        }, 6000);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error);
     }
   }, [googleLogin, googleLoginSilent, login]);
 
@@ -137,10 +161,6 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     }
   }, [user, isLoading, isSignedIn, isAuthenticated]);
 
-  if (isSignedIn && isAuthenticated()) {
-    return children;
-  }
-
   if (isLoading) {
     return <AuthLoading />;
   }
@@ -149,12 +169,12 @@ const AuthScreen = ({ children }: PropsWithChildren) => {
     <View style={styles.container}>
       <StatusBar animated backgroundColor="#030e19" barStyle="dark-content" />
       <ImageBackground
-        source={require('../assets/1.jpeg')}
+        source={require('../../assets/1.jpeg')}
         style={styles.imageBackground}>
         <View style={styles.imageOverlap}>
           <View style={styles.logoWrapper}>
             <Image
-              source={require('../assets/icon.png')}
+              source={require('../../assets/icon.png')}
               resizeMode="contain"
               style={{ width: s(100), height: s(100), marginRight: 10 }}
             />

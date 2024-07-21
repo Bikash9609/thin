@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AxiosError } from 'axios';
-import { request, RequestOptions } from '../axios'; // Import your request function
+import { request, RequestOptions } from '../_axios'; // Import your request function
 
 interface UseMutationOptions<T> extends RequestOptions {
   onSuccess?: (data: T) => void;

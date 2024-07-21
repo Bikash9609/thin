@@ -1,5 +1,6 @@
 // NavigationTypes.ts
 type ScreensParamsList = {
+  Auth: undefined;
   Home: undefined;
   AddStory: undefined;
   ProfileScreen: undefined;

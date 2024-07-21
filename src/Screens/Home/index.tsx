@@ -6,9 +6,12 @@ import AuthLoading from '../../components/AuthLoading';
 import EndOfPosts from '../../components/EndOfPosts';
 import LoadingOfPosts from '../../components/LoadingOfPosts';
 import useCarouselGuide from './useCarouselGuide';
-import useCarouselPrefetcher from './useCarousel';
+import useCarouselPrefetcher, { isAlmostViewed } from './useCarousel';
 import { HomeProvider, useHome } from '../../context/HomeProvider';
 import AdUnit from './AdUnit';
+import NoNewsItems from './NoNewsItems';
+import LoadingPill from '@/components/LoadingPill';
+import StackCardsCarousel from '@/components/StackCardCarousel';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -44,6 +47,7 @@ const Main = () => {
     refreshData,
     viewedItems,
     setCurrentIndex,
+    totalViewed,
   } = useHome();
 
   const { carouselRef, onScroll } = useCarouselGuide({
@@ -113,8 +117,23 @@ const Main = () => {
 
   if (loading && !data.length) return <AuthLoading />;
 
+  if (!data.length) return <NoNewsItems refreshData={refreshData} />;
+
   return (
     <View style={styles.container}>
+      <StackCardsCarousel
+        data={data}
+        renderItem={info => renderNewsItem({ item: info.item })}
+      />
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <LoadingPill
+        isLoading={loading && isAlmostViewed(totalViewed, data.length)}
+        message="Fetching..."
+      />
       <Carousel
         ref={carouselRef}
         data={data}

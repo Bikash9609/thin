@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
-import { request } from '../axios';
+import { request } from '../_axios';
+import {} from 'lodash';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
@@ -10,6 +11,8 @@ import {
   checkNotificationPermission,
   requestNotificationPermission,
 } from './useNotification';
+import { convertToNestedObject } from '../helpers/objects';
+import useNavigate from './useNavigate';
 
 // Register background handler
 messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -21,6 +24,7 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 messaging().getInitialNotification();
 
 const useFirebasePushNotifications = (): void => {
+  const { navigate } = useNavigate() as any;
   useEffect(() => {
     const handlePermissionAndToken = async (): Promise<void> => {
       try {
@@ -51,7 +55,16 @@ const useFirebasePushNotifications = (): void => {
     const unsubscribe = messaging().onMessage(
       async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
         console.log('A new FCM message arrived!', remoteMessage);
-        // Handle the incoming message here
+        // if (remoteMessage?.data) {
+        //   const data = convertToNestedObject(remoteMessage.data) as {
+        //     screen: string;
+        //     params: any;
+        //   };
+
+        //   if (data) {
+        //     navigate(data.screen, data.params);
+        //   }
+        // }
       },
     );
 

@@ -1,10 +1,20 @@
 import { useEffect } from 'react';
 
-function isHalfViewed(itemsViewed: number, totalItems: number): boolean {
+export function isHalfViewed(itemsViewed: number, totalItems: number): boolean {
   if (totalItems === 0) {
     return false;
   }
   return itemsViewed / totalItems >= 0.5;
+}
+
+export function isAlmostViewed(
+  itemsViewed: number,
+  totalItems: number,
+): boolean {
+  if (totalItems === 0) {
+    return false;
+  }
+  return itemsViewed / totalItems >= 0.9;
 }
 
 interface Props {

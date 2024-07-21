@@ -46,24 +46,24 @@ const useShare = ({ storyUuid }: Props) => {
       // Capture the current screen
       const options: CaptureOptions = {
         format: 'jpg',
-        quality: 0.8,
+        quality: 1,
         result: 'data-uri',
         snapshotContentContainer: false,
-        width: (viewRef as any).current.props.style.width ?? width,
-        height: (viewRef as any).current.props.style.height ?? height,
       };
       const uri = await captureScreen(options);
 
       // Share the screenshot and message
-      const shareOptions: Partial<ShareOptions> = {
-        title: `Get latest dev short blogs, news and regular updates on the only Thin App`,
-        message: `Checkout the Thin App. Get latest dev short blogs, news and regular updates on the only Thin App. Download the app ${urlToShare}`,
+      const shareOptions = {
+        title: 'Get the latest dev blogs and updates on Thin App',
+        message: `Check out Thin App for dev blogs, news, and updates. Download now: ${urlToShare}`,
         url: uri,
+        showAppsToView: true,
+        failOnCancel: false,
         ...opts,
-        social: Share.Social.WHATSAPP, // You can change the platform here
+        // social: Share.Social.WHATSAPP, // You can change the platform here
       };
 
-      await Share.shareSingle(shareOptions as any);
+      await Share.open(shareOptions as any);
     } catch (error) {
       console.error('Error sharing screenshot:', error);
       Snackbar.show({

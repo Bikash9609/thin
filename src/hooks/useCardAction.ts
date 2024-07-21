@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { request } from '../axios';
+import { request } from '../_axios';
 import { Alert } from 'react-native';
 
 interface CardState {

@@ -11,9 +11,13 @@ import { AppBarProvider, useAppBar } from './context/AppBarProvider';
 import ProfileScreen from './Screens/Profile';
 import IntroductionScreen from './Screens/Introduction/index';
 import AuthorSignupScreen from './Screens/AuthorSignup';
-import { useAuth } from './context/AuthProvider';
 import NewsItemScreen from './Screens/NewsItem';
 import GenericAppbar from './components/GenericAppbar';
+import { Linking } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import { convertToNestedObject } from './helpers/objects';
+import { useAuth } from './context/AuthProvider';
+import AuthScreen from './Screens/Auth';
 
 const Stack =
   createNativeStackNavigator<
@@ -26,20 +30,69 @@ const Stack =
       | 'AuthorSignupScreen'
       | 'NewsItemScreen'
       | 'PublicNewsItemScreen'
+      | 'Auth'
     >
   >();
 
+export interface ScreenProps<T extends keyof ScreensParamsList> {
+  // T is one of Home|PasswordAdd
+  navigation: NativeStackNavigationProp<ScreensParamsList, T>;
+}
+
+const NAVIGATION_IDS = ['PublicNewsItemScreen'];
+
+function buildDeepLinkFromNotificationData(_data: any): string | null {
+  if (!_data) return null;
+
+  const data = convertToNestedObject(_data) as { screen: string; params: any };
+  const navigationId = data?.screen;
+  if (!navigationId || !NAVIGATION_IDS.includes(navigationId)) {
+    console.warn('Unverified navigationId', navigationId);
+    return null;
+  }
+  if (navigationId === 'PublicNewsItemScreen') {
+    return `thin://story/${data.params.postId}`;
+  }
+  return null;
+}
+
 export const linking: LinkingOptions<ScreensParamsList> = {
-  prefixes: ['com.thin://', 'https://thin.maarkar.in'],
+  prefixes: ['thin://', 'https://thin.maarkar.in'],
   config: {
     screens: {
-      PublicNewsItemScreen: {
-        path: 'story',
-        parse: {
-          uuid: (uuid: string) => `${uuid}`, // ensuring uuid is treated as a string
-        },
-      },
+      PublicNewsItemScreen: 'story/:uuid',
     },
+  },
+  async getInitialURL() {
+    const url = await Linking.getInitialURL();
+    if (typeof url === 'string') {
+      return url;
+    }
+    //getInitialNotification: When the application is opened from a quit state.
+    const message = await messaging().getInitialNotification();
+    const deeplinkURL = buildDeepLinkFromNotificationData(message?.data);
+    if (typeof deeplinkURL === 'string') {
+      return deeplinkURL;
+    }
+  },
+  subscribe(listener: (url: string) => void) {
+    const onReceiveURL = ({ url }: { url: string }) => listener(url);
+
+    // Listen to incoming links from deep linking
+    const linkingSubscription = Linking.addEventListener('url', onReceiveURL);
+
+    //onNotificationOpenedApp: When the application is running, but in the background.
+    const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
+      const url = buildDeepLinkFromNotificationData(remoteMessage.data);
+      if (typeof url === 'string') {
+        listener(url);
+      }
+    });
+
+    return () => {
+      linkingSubscription.remove();
+      unsubscribe();
+    };
   },
 };
 
@@ -125,13 +178,30 @@ function StackNavigator() {
   );
 }
 
+function AuthStackNavigator() {
+  const appBarProps = useAppBar();
+
+  return (
+    <Stack.Navigator initialRouteName={'Auth'}>
+      <Stack.Screen
+        name="Auth"
+        component={AuthScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function AppNavigator({
   children,
 }: Readonly<Partial<PropsWithChildren>>) {
+  const { isAuthenticated } = useAuth();
   return (
     <AppBarProvider>
       {children}
-      <StackNavigator />
+      {isAuthenticated() ? <StackNavigator /> : <AuthStackNavigator />}
     </AppBarProvider>
   );
 }

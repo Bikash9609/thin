@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import config from './config/config';
-import AsyncStorageUtils from './helpers/asyncStorage';
+import config from '@/config/config';
+import AsyncStorageUtils from '@/helpers/asyncStorage';
 
 // Define interface for response data
 type ApiResponse<T = any> = T;
@@ -35,7 +35,6 @@ export const request = async <T>({
   try {
     const token = await AsyncStorageUtils.getItem(config.tokenStorageKey);
 
-    console.log('Inside');
     const response: AxiosResponse<ApiResponse<T>> = await api.request<
       ApiResponse<T>
     >({
