@@ -28,6 +28,13 @@ const SettingsScreen = ({ navigation }: ScreenProps<'Settings'>) => {
   const styles = useStyles();
   const { logout, user } = useAuth();
 
+  const sendEmail = async () => {
+    const subject = 'Frulow App Feedback';
+    const body = `Hi Frulow Team`;
+    const url = `mailto:support@maarkar.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    openLink(url)();
+  };
+
   const handleLogout = async () => {
     logout();
   };
@@ -55,6 +62,7 @@ const SettingsScreen = ({ navigation }: ScreenProps<'Settings'>) => {
         title="User guidelines"
         onPress={openLink(config.guidelines)}
       />
+      <CustomListItem title="Send Feedback" onPress={sendEmail} />
 
       <Pressable onPress={handleLogout}>
         <View style={styles.footerBtn}>
@@ -103,10 +111,11 @@ const useStyles = makeStyles(theme => ({
 
   email: {
     color: theme.colors.gray[500],
-    fontSize: fs(18),
+    fontSize: fs(theme.fontSizes.base),
     textAlign: 'left',
     paddingVertical: scale(15),
     paddingHorizontal: scale(10),
+    ...theme.fontWeights.medium,
   },
   listItem: {
     width: '100%',
@@ -117,23 +126,24 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'flex-start',
   },
   listItemText: {
-    color: theme.colors.primary,
+    color: theme.text.dark.black,
     fontSize: fs(16),
+    ...theme.fontWeights.medium,
   },
   footerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.red[600],
-    padding: scale(10),
+    padding: 10,
     borderRadius: 5,
-    height: scale(40),
+    height: scale(45),
     width: scale(310),
     marginTop: scale(20),
   },
   footerBtnTitle: {
     color: theme.colors.white,
-    fontSize: fs(16),
+    fontSize: fs(theme.fontSizes.base),
     textAlign: 'center',
     ...theme.fontWeights.medium,
   },

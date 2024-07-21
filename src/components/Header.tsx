@@ -154,7 +154,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'lightgray',

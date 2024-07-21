@@ -103,7 +103,7 @@ export interface PageProps<T extends keyof ScreensParamsList> {
 
 function StackNavigator() {
   const appBarProps = useAppBar();
-  const initialRouteName = 'Settings';
+  const initialRouteName = 'Home';
 
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>

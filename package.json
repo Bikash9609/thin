@@ -15,6 +15,7 @@
     "generate:bootsplash": "yarn react-native generate-bootsplash assets/icon.png --platforms=android,ios,web --background=F5FCFF --logo-width=100 --assets-output=assets --flavor=main --html=index.html"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^4",
     "@react-native-async-storage/async-storage": "^1.22.2",
     "@react-native-community/netinfo": "^11.3.2",
     "@react-native-firebase/app": "^20.1.0",

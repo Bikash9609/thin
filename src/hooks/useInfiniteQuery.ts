@@ -10,13 +10,12 @@ type Response<T> = [
     fetchMore: () => void;
     refreshData: () => void;
     setData: React.Dispatch<React.SetStateAction<T[]>>;
+    error: any;
+    fetchedPages: number[];
   },
 ];
 
-function useInfiniteQuery<T>(
-  fetchData: FetchFunction<T>,
-  withoutAdditionalScreen?: boolean,
-): Response<T> {
+function useInfiniteQuery<T>(fetchData: FetchFunction<T>): Response<T> {
   const [state, setState] = useState({
     data: [] as T[],
     loading: false,
@@ -30,98 +29,96 @@ function useInfiniteQuery<T>(
     if (!state.hasMore || state.loading) return;
 
     setState(prevState => ({ ...prevState, loading: true, error: null }));
-    let tries = 0;
-    let delay = 1000;
 
-    while (tries < 3) {
-      try {
-        const response = await fetchData(state.page);
-        const hasMoreItem = response && response.length >= (__DEV__ ? 5 : 20);
+    try {
+      const response = await fetchData(state.page);
+      const hasMoreItem = response.length >= (__DEV__ ? 5 : 20);
 
-        setState(prevState => {
-          const newData =
-            !hasMoreItem && !withoutAdditionalScreen
-              ? [...prevState.data, ...response, { noItemScreen: true } as any]
-              : uniqBy(
-                  [...prevState.data, ...response],
-                  (item: any) => item.uuid,
-                );
+      console.log(response.length);
 
-          const filteredData = newData.filter(
-            item => !(item as any).loadingScreen && !(item as any).adsScreen,
-          );
+      setState(prevState => {
+        const newData = !hasMoreItem
+          ? [...prevState.data, ...response, { noItemScreen: true } as any]
+          : uniqBy([...prevState.data, ...response], (item: any) => item.uuid);
 
-          const finalData = filteredData.reduce((acc, item, index) => {
-            acc.push(item);
-            if ((index + 1) % 5 === 0) {
-              acc.push({ adsScreen: true } as any);
-            }
-            return acc;
-          }, [] as T[]);
+        const filteredData = newData.filter(
+          item => !(item as any).loadingScreen && !(item as any).adsScreen,
+        );
 
-          return {
-            ...prevState,
-            data: finalData,
-            loading: false,
-            hasMore: hasMoreItem,
-            fetchedPages: [...prevState.fetchedPages, prevState.page],
-          };
-        });
+        const finalData = filteredData.reduce((acc, item, index) => {
+          acc.push(item);
+          if ((index + 1) % 5 === 0) {
+            acc.push({ adsScreen: true } as any);
+          }
+          return acc;
+        }, [] as T[]);
 
-        return;
-      } catch (error) {
-        console.error(`Error fetching data (attempt ${tries + 1}):`, error);
-        tries++;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2;
-      }
+        return {
+          ...prevState,
+          data: finalData,
+          loading: false,
+          hasMore: hasMoreItem,
+          fetchedPages: [...prevState.fetchedPages, prevState.page],
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+        error,
+      }));
     }
-
-    setState(prevState => ({
-      ...prevState,
-      loading: false,
-      error: 'Failed to fetch data',
-    }));
-  }, [
-    state.hasMore,
-    state.loading,
-    state.page,
-    state.data.length,
-    fetchData,
-    withoutAdditionalScreen,
-  ]);
+  }, [state.hasMore, state.loading, state.page, fetchData]);
 
   useEffect(() => {
     if (
-      !state.fetchedPages.includes(state.page) &&
+      state.hasMore &&
       !state.loading &&
-      !state.error
+      !state.error &&
+      !state.fetchedPages.includes(state.page)
     ) {
       fetchDataAndAppend();
     }
   }, [
     state.page,
-    fetchDataAndAppend,
+    state.hasMore,
     state.loading,
     state.error,
     state.fetchedPages,
+    fetchDataAndAppend,
   ]);
 
   const fetchMore = useCallback(() => {
-    if (state.hasMore && !state.loading) {
-      setState(prevState => ({ ...prevState, page: prevState.page + 1 }));
+    if (
+      state.hasMore &&
+      !state.loading &&
+      state.fetchedPages.includes(state.page)
+    ) {
+      setState(prevState => ({
+        ...prevState,
+        page: prevState.page + 1,
+        loading: true,
+      }));
+      setTimeout(() => fetchDataAndAppend().catch(error => {}), 20);
     }
-  }, [state.hasMore, state.loading]);
+  }, [state]);
 
   const refreshData = useCallback(() => {
-    setState({
-      data: [],
-      loading: false,
-      hasMore: true,
-      page: 1,
-      error: null,
-      fetchedPages: [],
-    });
+    console.log('Refresh data called');
+    setState(prevState => ({ ...prevState, loading: true, error: null }));
+
+    setTimeout(() => {
+      setState(prev => ({
+        ...prev,
+        data: [],
+        hasMore: true,
+        page: 1,
+        error: null,
+        fetchedPages: [],
+      }));
+      fetchDataAndAppend().catch(error => {});
+    }, 20);
   }, []);
 
   return useMemo(

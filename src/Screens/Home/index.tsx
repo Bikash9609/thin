@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import NewsItem from './NewsItem';
 import AuthLoading from '../../components/AuthLoading';
 import EndOfPosts from '../../components/EndOfPosts';
@@ -10,6 +10,8 @@ import AdUnit from './AdUnit';
 import NoNewsItems from './NoNewsItems';
 import LoadingPill from '@/components/LoadingPill';
 import StackCardsCarousel from '@/components/StackCardCarousel';
+import AskToRate from '@/components/AskToRate';
+import useRatePrompt from '@/hooks/useRate';
 
 export interface PostResponse {
   uuid: string;
@@ -43,12 +45,13 @@ const Main = () => {
     refreshData,
     viewedItems,
     setCurrentIndex,
-    totalViewed,
   } = useHome();
 
   const { carouselRef, onScroll } = useCarouselGuide({
     enabled: !loading && !!data.length,
   });
+
+  const { onRate, showPrompt, onClose } = useRatePrompt();
 
   const handleItemViewed = React.useCallback(
     (slideIndex: number) => {
@@ -56,20 +59,17 @@ const Main = () => {
       onScroll();
       addItemToViewed(slideIndex);
     },
-    [data, viewedItems],
+    [data, viewedItems, loading, hasMore],
   );
 
-  const onProgressChange = useCallback(
-    (offsetProgress: number, absoluteProgress: number) => {
-      const totalItems = data.length;
-      const currentPercentage = (absoluteProgress / totalItems) * 100;
-
-      if (currentPercentage >= 70 && !loading && hasMore) {
-        fetchMore();
-      }
-    },
-    [data, fetchMore],
-  );
+  useEffect(() => {
+    if (
+      data?.length - carouselRef?.current?.getCurrentIndex() + 1 <= 6 &&
+      !loading &&
+      hasMore
+    )
+      fetchMore();
+  }, [data, viewedItems, loading, hasMore]);
 
   useEffect(() => {
     if (data?.[0] && !viewedItems.includes(data?.[0]?.uuid)) {
@@ -134,9 +134,11 @@ const Main = () => {
         data={data}
         renderItem={renderNewsItem}
         onSnapToItem={handleItemViewed}
-        onProgressChange={onProgressChange}
         ref={carouselRef as any}
       />
+      {showPrompt && viewedItems?.length > 6 && (
+        <AskToRate onClose={onClose} onRate={onRate} />
+      )}
     </View>
   );
 };

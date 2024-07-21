@@ -12,6 +12,7 @@ import { AuthProvider } from './src/context/AuthProvider';
 import useInternetStatus from './src/hooks/useInternetStatus';
 import { Text } from '@rneui/themed';
 import { initialize } from 'react-native-clarity';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 if (!__DEV__) initialize('myzwwddjj6');
 
@@ -35,18 +36,18 @@ export default function App() {
   useCheckForUpdates();
 
   return (
-    // <GestureHandlerRootView>
-    <NavigationContainer linking={linking}>
-      <SafeAreaProvider>
-        <AppThemeProvider>
-          <ErrorBoundary>
-            <AuthProvider>
-              <Navigator />
-            </AuthProvider>
-          </ErrorBoundary>
-        </AppThemeProvider>
-      </SafeAreaProvider>
-    </NavigationContainer>
-    // </GestureHandlerRootView>
+    <GestureHandlerRootView>
+      <NavigationContainer linking={linking}>
+        <SafeAreaProvider>
+          <AppThemeProvider>
+            <ErrorBoundary>
+              <AuthProvider>
+                <Navigator />
+              </AuthProvider>
+            </ErrorBoundary>
+          </AppThemeProvider>
+        </SafeAreaProvider>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

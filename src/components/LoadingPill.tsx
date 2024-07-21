@@ -1,15 +1,8 @@
 import { fs } from '@/utils/font';
-import { makeStyles, useTheme } from '@rneui/themed';
+import { makeStyles } from '@rneui/themed';
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  Text,
-  Animated,
-} from 'react-native';
+import { ActivityIndicator, Text, Animated } from 'react-native';
 import { s } from 'react-native-size-matters';
-import Stack from './Stack';
 
 interface LoadingPillProps {
   isLoading: boolean; // Prop to control visibility of the loading indicator
