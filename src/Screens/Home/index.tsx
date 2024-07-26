@@ -12,6 +12,7 @@ import LoadingPill from '@/components/LoadingPill';
 import StackCardsCarousel from '@/components/StackCardCarousel';
 import AskToRate from '@/components/AskToRate';
 import useRatePrompt from '@/hooks/useRate';
+import { logCardViewed } from '@/analytics';
 
 export interface PostResponse {
   uuid: string;
@@ -58,6 +59,7 @@ const Main = () => {
       setCurrentIndex(slideIndex);
       onScroll();
       addItemToViewed(slideIndex);
+      if (data?.[slideIndex]?.uuid) logCardViewed(data[slideIndex].uuid);
     },
     [data, viewedItems, loading, hasMore],
   );

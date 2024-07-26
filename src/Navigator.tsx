@@ -168,8 +168,6 @@ function StackNavigator() {
 }
 
 function AuthStackNavigator() {
-  const appBarProps = useAppBar();
-
   return (
     <Stack.Navigator initialRouteName={'Auth'}>
       <Stack.Screen

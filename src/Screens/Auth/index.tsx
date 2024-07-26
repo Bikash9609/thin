@@ -23,6 +23,12 @@ import { useAuth } from '@/context/AuthProvider';
 import Snackbar from 'react-native-snackbar';
 import { fs } from '@/utils/font';
 import { ScreenProps } from '@/Navigator';
+import {
+  logAuthLoginError,
+  logAuthLoginSuccess,
+  logLoginTriggered,
+  setLogUserId,
+} from '@/analytics';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -49,21 +55,31 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
     configureGoogleSignIn();
   }, []);
 
-  const verifyAuthStatusSilently = async () => {
-    try {
-      const res = await request<{ user: User }>({
-        method: 'get',
-        url: '/user-data',
-      });
-      if (!res.user) throw new Error('No token found');
-      setIsSignedIn(true);
-      await AsyncStorageUtils.setItem(config.userDataStorageKey, res.user);
-      return res;
-    } catch (error) {
-      console.log(error);
-      await AsyncStorageUtils.clearAll();
-      setIsSignedIn(false);
-      Alert.prompt('Error logging in');
+  const verifyAuthStatusSilently = async (maxAttempts: number = 3) => {
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      try {
+        const res = await request<{ user: User }>({
+          method: 'get',
+          url: '/user-data',
+        });
+        if (!res.user) throw new Error('No token found');
+
+        setIsSignedIn(true);
+        await AsyncStorageUtils.setItem(config.userDataStorageKey, res.user);
+        logAuthLoginSuccess(`${res.user.id}`, 'google_login');
+        return res;
+      } catch (error) {
+        attempt++;
+        console.log(`Attempt ${attempt} failed:`, error);
+        if (attempt >= maxAttempts) {
+          logAuthLoginError(JSON.stringify(error), 'google_login');
+          // If the maximum number of attempts is reached, handle the failure
+          await AsyncStorageUtils.clearAll();
+          setIsSignedIn(false);
+          Alert.prompt('Error logging in');
+        }
+      }
     }
   };
 
@@ -91,6 +107,7 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
 
   const googleLogin = useCallback(async () => {
     try {
+      logLoginTriggered('google_login');
       setIsLoading(true);
       setIsSignedIn(await GoogleSignin.hasPreviousSignIn());
       // Sign in with Google
@@ -111,6 +128,7 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
 
   const googleLoginSilent = useCallback(async () => {
     try {
+      logLoginTriggered('google_login');
       const userInfo = await GoogleSignin.signInSilently();
       if (!userInfo?.idToken) throw new Error('Error logging in');
       const res = await fetchUserLoginToken(userInfo.idToken);
@@ -135,6 +153,7 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
         AsyncStorageUtils.getItem(config.userDataStorageKey),
       ]);
       if (session?.[0] && session?.[1]) {
+        setLogUserId(session?.[1]?.user?.id);
         login({ user: session[1], token: session[0] });
         verifyAuthStatusSilently();
         setIsSignedIn(true);

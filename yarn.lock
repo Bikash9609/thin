@@ -2430,6 +2430,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-11.3.2.tgz#e63201d0b87ad42d086d1003be48ae7b327f0594"
   integrity sha512-YsaS3Dutnzqd1BEoeC+DEcuNJedYRkN6Ef3kftT5Sm8ExnCF94C/nl4laNxuvFli3+Jz8Df3jO25Jn8A9S0h4w==
 
+"@react-native-firebase/analytics@^20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-20.3.0.tgz#8c00d9a56eade754b27528f5bb5e549e4456a444"
+  integrity sha512-viZWxZgTyv94t1qf8chXtC6YZyte4N0LxZspYJLjDeXGAMrLNGq8pku3rv7EY+bGJh5PWdc7pGHpbO4cIxcQkw==
+
 "@react-native-firebase/app@^20.1.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-20.3.0.tgz#af188e1b1adb91f6e73380e654352d1a678bb69a"

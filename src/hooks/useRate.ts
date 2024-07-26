@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { openLink } from '@/utils';
+import { logAppRated, logAppRateDismissed } from '@/analytics';
 
 const LAST_PROMPT_DATE_KEY = 'LAST_PROMPT_DATE';
 const USER_CANCELLED_KEY = 'USER_CANCELLED';
@@ -59,8 +60,10 @@ const useRatePrompt = (): UseRatePromptReturn => {
       if (rated) {
         await AsyncStorage.setItem(USER_RATED_KEY, 'true');
         await AsyncStorage.removeItem(USER_CANCELLED_KEY);
+        logAppRated();
       } else {
         await AsyncStorage.setItem(USER_CANCELLED_KEY, 'true');
+        logAppRateDismissed();
       }
 
       setShowPrompt(false);

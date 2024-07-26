@@ -1,3 +1,4 @@
+import { logAppLogout } from '@/analytics';
 import config from '@/config/config';
 import { useAuth } from '@/context/AuthProvider';
 import { ScreenProps } from '@/Navigator';
@@ -36,6 +37,7 @@ const SettingsScreen = ({ navigation }: ScreenProps<'Settings'>) => {
   };
 
   const handleLogout = async () => {
+    logAppLogout(`${user?.user?.id}` ?? undefined);
     logout();
   };
 
