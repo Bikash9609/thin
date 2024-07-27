@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev:android": "yarn android:emulator && npx react-native@latest start",
     "android:emulator": "node runEmulator.js",
     "android": "yarn android:emulator && react-native run-android",
     "ios": "react-native run-ios",
