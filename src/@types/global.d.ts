@@ -29,4 +29,5 @@ type User = {
   createdAt: Date;
   updatedAt: Date;
   author: Author;
+  androidAppRated?: string;
 };

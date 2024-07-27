@@ -280,13 +280,15 @@ const NewsItem: React.FC<NewsItemProps> = ({
               source={{ uri: imageUrl }}
               imageStyle={styles.footerBg}>
               <View style={[styles.footer]}>
-                <Text
-                  style={styles.footerText}
-                  numberOfLines={2}
-                  maxFontSizeMultiplier={1.1}
-                  onPress={handleOpenLink(link)}>
-                  {subtitle}
-                </Text>
+                {!!subtitle && (
+                  <Text
+                    style={styles.footerText}
+                    numberOfLines={2}
+                    maxFontSizeMultiplier={1.1}
+                    onPress={handleOpenLink(link)}>
+                    {subtitle}
+                  </Text>
+                )}
 
                 <View style={styles.reactionIcons}>
                   <TouchableOpacity

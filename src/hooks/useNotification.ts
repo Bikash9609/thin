@@ -1,3 +1,4 @@
+import { logNotificationPermissionRejected } from '@/analytics';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { PERMISSIONS } from 'react-native-permissions';
 import Snackbar from 'react-native-snackbar';
@@ -36,6 +37,7 @@ const requestNotificationPermission = async (): Promise<boolean> => {
         text: 'Please allow notification permission from settings',
         duration: Snackbar.LENGTH_LONG,
       });
+      logNotificationPermissionRejected();
       return false;
     }
 

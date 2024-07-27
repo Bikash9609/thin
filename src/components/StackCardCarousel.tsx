@@ -53,19 +53,19 @@ const StackCardCarousel = React.forwardRef(
           Extrapolation.CLAMP,
         );
 
-        const zIndex = interpolate(
-          value,
-          [-1, 0, 1],
-          [-300, 0, 300],
-          Extrapolation.CLAMP,
-        );
+        // const zIndex = interpolate(
+        //   value,
+        //   [-1, 0, 1],
+        //   [-300, 0, 300],
+        //   Extrapolation.CLAMP,
+        // );
 
-        const scale = interpolate(
-          value,
-          [-1, 0, 1],
-          [1, 1, 1.2],
-          Extrapolation.CLAMP,
-        );
+        // const scale = interpolate(
+        //   value,
+        //   [-1, 0, 1],
+        //   [1, 1, 1.2],
+        //   Extrapolation.CLAMP,
+        // );
 
         // Shadow properties
         const shadowOpacity = interpolate(
@@ -75,8 +75,8 @@ const StackCardCarousel = React.forwardRef(
           Extrapolation.CLAMP,
         );
         return {
-          transform: [{ translateX }, { scale }],
-          zIndex,
+          transform: [{ translateX }],
+          // zIndex,
           shadowColor: 'black',
           shadowOpacity,
           shadowRadius: 10, // Adjust shadow radius as needed

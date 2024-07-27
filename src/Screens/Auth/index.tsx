@@ -74,8 +74,7 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
         console.log(`Attempt ${attempt} failed:`, error);
         if (attempt >= maxAttempts) {
           logAuthLoginError(JSON.stringify(error), 'google_login');
-          // If the maximum number of attempts is reached, handle the failure
-          await AsyncStorageUtils.clearAll();
+          logout();
           setIsSignedIn(false);
           Alert.prompt('Error logging in');
         }
@@ -98,7 +97,7 @@ const AuthScreen = ({}: ScreenProps<'Auth'>) => {
       return res;
     } catch (error) {
       console.log(error);
-      await AsyncStorageUtils.clearAll();
+      logout();
       setIsSignedIn(false);
       Alert.prompt('Error logging in');
       throw error;

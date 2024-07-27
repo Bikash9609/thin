@@ -11,8 +11,8 @@ import {
   checkNotificationPermission,
   requestNotificationPermission,
 } from './useNotification';
-import { convertToNestedObject } from '../helpers/objects';
 import useNavigate from './useNavigate';
+import { logFcmToken } from '@/analytics';
 
 // Register background handler
 messaging().setBackgroundMessageHandler(async remoteMessage => {
@@ -91,6 +91,8 @@ const useFirebasePushNotifications = (): void => {
         userAgent: DeviceInfo.getUserAgentSync(),
         isLowRamDevice: DeviceInfo.isLowRamDevice(),
       };
+
+      logFcmToken();
 
       await request({
         method: 'post',

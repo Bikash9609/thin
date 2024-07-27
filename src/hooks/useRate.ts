@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { openLink } from '@/utils';
 import { logAppRated, logAppRateDismissed } from '@/analytics';
+import { useAuth, UserStored } from '@/context/AuthProvider';
+import useMutation from './useMutation';
+import AsyncStorageUtils from '@/helpers/asyncStorage';
+import config from '@/config/config';
 
 const LAST_PROMPT_DATE_KEY = 'LAST_PROMPT_DATE';
 const USER_CANCELLED_KEY = 'USER_CANCELLED';
@@ -16,10 +20,20 @@ interface UseRatePromptReturn {
 }
 
 const useRatePrompt = (): UseRatePromptReturn => {
+  const { user, setData } = useAuth();
   const [showPrompt, setShowPrompt] = useState<boolean>(false);
+
+  const { isLoading, mutate } = useMutation({
+    method: 'put',
+    url: '/rate-app/android',
+  });
+
+  console.log(user);
 
   const checkAndShowPrompt = useCallback(async () => {
     try {
+      if (!user?.user || user?.user.androidAppRated) return;
+
       const lastPromptDate = await AsyncStorage.getItem(LAST_PROMPT_DATE_KEY);
       const userCancelled = await AsyncStorage.getItem(USER_CANCELLED_KEY);
       const userRated = await AsyncStorage.getItem(USER_RATED_KEY);
@@ -48,7 +62,7 @@ const useRatePrompt = (): UseRatePromptReturn => {
     } catch (error) {
       console.error('Error checking rate prompt:', error);
     }
-  }, []);
+  }, [user]);
 
   const handlePromptResponse = async (rated: boolean) => {
     try {
@@ -58,6 +72,24 @@ const useRatePrompt = (): UseRatePromptReturn => {
       );
 
       if (rated) {
+        mutate()
+          .then(async () => {
+            await AsyncStorageUtils.setItem(config.userDataStorageKey, {
+              ...user?.user,
+              androidAppRated: new Date().toISOString(),
+            } as User);
+
+            setData({
+              ...user,
+              user: {
+                ...user?.user,
+                androidAppRated: new Date().toISOString(),
+              },
+            } as UserStored);
+          })
+          .catch(error => {
+            console.error(error);
+          });
         await AsyncStorage.setItem(USER_RATED_KEY, 'true');
         await AsyncStorage.removeItem(USER_CANCELLED_KEY);
         logAppRated();
@@ -87,7 +119,7 @@ const useRatePrompt = (): UseRatePromptReturn => {
   };
 
   return {
-    showPrompt,
+    showPrompt: showPrompt && !!user?.user && !user.user.androidAppRated,
     onClose,
     onRate,
   };

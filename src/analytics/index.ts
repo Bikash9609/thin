@@ -41,7 +41,7 @@ export async function logAuthLoginSuccess(
 
 export async function setLogUserId(userId: string): Promise<void> {
   try {
-    await analytics().setUserId(userId);
+    await analytics().setUserId(`${userId}`);
   } catch (error) {
     console.error('Failed to set user ID:', error);
   }
@@ -90,6 +90,22 @@ export async function logAppLogout(userId?: string): Promise<void> {
     await analytics().logEvent('app_logout', {
       user_id: userId,
     });
+  } catch (error) {
+    console.error('Failed to log app logout event:', error);
+  }
+}
+
+export async function logFcmToken(): Promise<void> {
+  try {
+    await analytics().logEvent('fcm_token_fired');
+  } catch (error) {
+    console.error('Failed to log app logout event:', error);
+  }
+}
+
+export async function logNotificationPermissionRejected(): Promise<void> {
+  try {
+    await analytics().logEvent('notification_rejected');
   } catch (error) {
     console.error('Failed to log app logout event:', error);
   }

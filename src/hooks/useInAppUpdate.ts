@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Alert, BackHandler, Platform } from 'react-native';
 import SpInAppUpdates, {
   IAUUpdateKind,
   StartUpdateOptions,
@@ -23,16 +23,32 @@ export const checkForUpdate = async () => {
               updateType: IAUUpdateKind.IMMEDIATE,
             };
           }
+
           inAppUpdates.addStatusUpdateListener(downloadStatus => {
             console.log('download status', downloadStatus);
             if (downloadStatus.status === IAUInstallStatus.DOWNLOADED) {
               console.log('downloaded');
-              inAppUpdates.installUpdate();
-              inAppUpdates.removeStatusUpdateListener(finalStatus => {
-                console.log('final status', finalStatus);
-              });
+              Alert.alert(
+                'Closing App',
+                'App is going to close to install the updates.',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      BackHandler.exitApp();
+                      inAppUpdates.installUpdate();
+                      inAppUpdates.removeStatusUpdateListener(finalStatus => {
+                        console.log('final status', finalStatus);
+                      });
+                      inAppUpdates.startUpdate(updateOptions);
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
             }
           });
+
           inAppUpdates.startUpdate(updateOptions);
         }
       } catch (error) {
